@@ -1,0 +1,2768 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hệ Thống Luyện Tập HSK 2 — Super Chinese Local Lab</title>
+  <style>
+    :root {
+      --bg: #f4f6fb;
+      --surface: #ffffff;
+      --surface-alt: #f8fafc;
+      --border: #e2e8f0;
+      --border-focus: #4f46e5;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-light: #eef2ff;
+      --accent: #0ea5e9;
+      --success: #16a34a;
+      --success-bg: #f0fdf4;
+      --success-border: #86efac;
+      --warning: #d97706;
+      --warning-bg: #fffbeb;
+      --warning-border: #fde68a;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --danger-border: #fca5a5;
+      --pinyin-color: #4f46e5;
+      --radius: 14px;
+      --shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+
+    .zh-text {
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Heiti SC", sans-serif;
+    }
+
+    /* Sticky Top Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+    }
+
+    .header-container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+      color: white;
+      font-weight: 800;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+    }
+
+    .brand-title h1 {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .brand-title p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .global-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-size: 0.83rem;
+    }
+
+    select, input[type="text"], textarea {
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    select:focus, input[type="text"]:focus, textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-outline {
+      background: var(--surface);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn-outline:hover {
+      background: var(--surface-alt);
+      border-color: #cbd5e1;
+    }
+
+    .btn-pinyin-active {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: #c7d2fe;
+    }
+
+    .btn-pinyin-hidden {
+      background: #fef3c7;
+      color: #b45309;
+      border-color: #fde68a;
+    }
+
+    .btn-audio {
+      background: #e0f2fe;
+      color: #0369a1;
+      border-color: #bae6fd;
+    }
+    .btn-audio:hover {
+      background: #bae6fd;
+    }
+    .btn-audio.speaking {
+      background: #0284c7;
+      color: white;
+      animation: pulseAudio 1s infinite;
+    }
+
+    @keyframes pulseAudio {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(2, 132, 199, 0); }
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    .btn-success:hover {
+      background: #15803d;
+    }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 0.78rem;
+      border-radius: 8px;
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 1140px;
+      margin: 20px auto 0;
+      padding: 0 20px;
+    }
+
+    /* Lesson Banner & Stats */
+    .lesson-banner {
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #1d4ed8 100%);
+      color: white;
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .lesson-info h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .lesson-info p {
+      font-size: 0.88rem;
+      color: #c7d2fe;
+    }
+
+    .score-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .score-pill {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 14px;
+      border-radius: 12px;
+      text-align: center;
+      min-width: 115px;
+    }
+
+    .score-pill .label {
+      font-size: 0.75rem;
+      color: #c7d2fe;
+      display: block;
+    }
+
+    .score-pill .val {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    /* Navigation Tabs */
+    .nav-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    @media (max-width: 820px) {
+      .nav-tabs {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .tab-btn {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 14px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    }
+
+    .tab-btn:hover {
+      border-color: #a5b4fc;
+      transform: translateY(-1px);
+    }
+
+    .tab-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.12);
+    }
+
+    .tab-btn .tab-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tab-btn.active .tab-title {
+      color: var(--primary);
+    }
+
+    .tab-btn .tab-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .tab-pane {
+      display: none;
+    }
+    .tab-pane.active {
+      display: block;
+    }
+
+    /* Section Header Bar */
+    .section-toolbar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-toolbar-title h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .section-toolbar-title p {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+    }
+
+    .toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Question Cards */
+    .questions-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .q-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s;
+    }
+
+    .q-card.correct {
+      border-color: var(--success-border);
+      background: linear-gradient(to bottom, #ffffff, #f0fdf4);
+    }
+
+    .q-card.incorrect {
+      border-color: var(--danger-border);
+      background: linear-gradient(to bottom, #ffffff, #fef2f2);
+    }
+
+    .q-card.partial {
+      border-color: var(--warning-border);
+      background: linear-gradient(to bottom, #ffffff, #fffbeb);
+    }
+
+    .q-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .q-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .q-num {
+      background: var(--primary);
+      color: white;
+      font-weight: 700;
+      font-size: 0.8rem;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .context-badge {
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+    }
+
+    .context-badge.work {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+
+    .context-badge.life {
+      background: #f0fdf4;
+      color: #15803d;
+      border-color: #bbf7d0;
+    }
+
+    .q-prompt {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    /* Word Tiles for Part 1 */
+    .answer-dropzone {
+      min-height: 58px;
+      background: var(--surface-alt);
+      border: 2px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+
+    .answer-dropzone.has-items {
+      border-style: solid;
+      border-color: #94a3b8;
+      background: #fff;
+    }
+
+    .dropzone-placeholder {
+      color: #94a3b8;
+      font-size: 0.86rem;
+      font-style: italic;
+      user-select: none;
+    }
+
+    .word-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .word-tile {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+      border: 1.5px solid #cbd5e1;
+      border-bottom-width: 3px;
+      border-radius: 10px;
+      padding: 6px 13px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.12s ease;
+    }
+
+    .word-tile:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      transform: translateY(-1px);
+    }
+
+    .word-tile.in-answer {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+
+    .word-tile.used {
+      opacity: 0.32;
+      pointer-events: none;
+      border-style: dashed;
+    }
+
+    .tile-pinyin {
+      font-size: 0.74rem;
+      color: var(--pinyin-color);
+      font-weight: 500;
+      line-height: 1.2;
+      margin-bottom: 2px;
+    }
+
+    .tile-hanzi {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    /* Hide pinyin state */
+    body.hide-pinyin .pinyin-text,
+    body.hide-pinyin .tile-pinyin {
+      display: none !important;
+    }
+
+    /* Force show pinyin on a single card when user clicks local toggle */
+    .q-card.force-show-pinyin .pinyin-text,
+    .q-card.force-show-pinyin .tile-pinyin,
+    .dialogue-item.force-show-pinyin .pinyin-text {
+      display: block !important;
+    }
+
+    /* Hide pinyin in Dạng 3 when dialogue-hide-pinyin is active */
+    .dialogue-container.dialogue-hide-pinyin .dialogue-item:not(.force-show-pinyin) .pinyin-text {
+      display: none !important;
+    }
+
+    /* Hide Vietnamese translation in Dạng 3 when dialogue-hide-vi is active */
+    .dialogue-container.dialogue-hide-vi .dialogue-item:not(.force-show-vi) .vi-text {
+      display: none !important;
+    }
+
+    /* Listening reflex blur mode in Dạng 3 */
+    .dialogue-container.dialogue-blur-hanzi .dialogue-item:not(.reveal-hanzi) .dialogue-hanzi {
+      filter: blur(7px);
+      cursor: pointer;
+      transition: filter 0.2s;
+    }
+    .dialogue-container.dialogue-blur-hanzi .dialogue-item:not(.reveal-hanzi) .dialogue-hanzi:hover {
+      filter: blur(2px);
+    }
+
+    /* Part 2 Input & Chips */
+    .translate-input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .translate-input {
+      flex: 1;
+      font-size: 1.1rem;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1.5px solid #cbd5e1;
+    }
+
+    .chip-helper-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .chip-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+
+    .helper-chip {
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+    .helper-chip:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .hint-box {
+      display: none;
+      background: #f8fafc;
+      border-left: 3px solid var(--accent);
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      color: #334155;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 12px;
+    }
+    .hint-box.visible {
+      display: block;
+    }
+
+    .q-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Feedback Box */
+    .feedback-box {
+      display: none;
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-alt);
+    }
+
+    .feedback-box.visible {
+      display: block;
+    }
+
+    .feedback-status {
+      font-weight: 700;
+      font-size: 0.92rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feedback-status.ok { color: var(--success); }
+    .feedback-status.err { color: var(--danger); }
+    .feedback-status.warn { color: var(--warning); }
+
+    .feedback-answer-zh {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-top: 4px;
+    }
+
+    .feedback-answer-py {
+      font-size: 0.92rem;
+      color: var(--pinyin-color);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .feedback-note {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border);
+    }
+
+    /* Part 3: Dialogue Styles */
+    .dialogue-scenario {
+      background: linear-gradient(to right, #eef2ff, #f0f9ff);
+      border: 1px solid #c7d2fe;
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      font-size: 0.92rem;
+      color: #1e1b4b;
+    }
+
+    .dialogue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .dialogue-item {
+      display: flex;
+      gap: 14px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow);
+      transition: all 0.2s;
+    }
+
+    .dialogue-item.speaker-b {
+      background: #fafcff;
+      border-color: #dbeafe;
+    }
+
+    .dialogue-item.playing-line {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
+      background: #f5f7ff;
+    }
+
+    .speaker-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .speaker-a .speaker-avatar {
+      background: #e0e7ff;
+      color: #3730a3;
+    }
+
+    .speaker-b .speaker-avatar {
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+
+    .dialogue-content {
+      flex: 1;
+    }
+
+    .dialogue-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .speaker-name {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .dialogue-line-tools {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dialogue-pinyin {
+      font-size: 0.92rem;
+      color: var(--pinyin-color);
+      font-weight: 500;
+      margin-bottom: 3px;
+    }
+
+    .dialogue-hanzi {
+      font-size: 1.32rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.5;
+      letter-spacing: 0.02em;
+    }
+
+    .vocab-highlight {
+      color: #4338ca;
+      background: #eef2ff;
+      padding: 0 4px;
+      border-radius: 5px;
+      border-bottom: 2px dotted #6366f1;
+      cursor: help;
+    }
+
+    .dialogue-vi {
+      font-size: 0.92rem;
+      color: #475569;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px dashed var(--border);
+    }
+
+    /* Comprehension Box in Part 3 */
+    .comp-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .comp-card h4 {
+      font-size: 1.05rem;
+      margin-bottom: 14px;
+    }
+
+    .comp-q-item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .comp-q-item:last-of-type {
+      border-bottom: none;
+    }
+
+    .comp-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .comp-option-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.92rem;
+      transition: background 0.12s;
+    }
+    .comp-option-label:hover {
+      background: var(--surface-alt);
+    }
+
+    /* Tab 4: Quizlet & Vocabulary Table */
+    .quizlet-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .quizlet-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-card h3 {
+      font-size: 1.08rem;
+      margin-bottom: 6px;
+    }
+
+    .panel-card p.sub {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .vocab-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+    }
+
+    .vocab-table th, .vocab-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .vocab-table th {
+      background: var(--surface-alt);
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .vocab-hanzi-cell {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .quizlet-textarea {
+      width: 100%;
+      height: 280px;
+      font-family: "Consolas", "Monaco", monospace;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      resize: vertical;
+      margin-bottom: 12px;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .grammar-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .grammar-item {
+      background: var(--surface-alt);
+      border-left: 4px solid var(--primary);
+      padding: 12px 14px;
+      border-radius: 0 10px 10px 0;
+    }
+
+    .grammar-item .g-pattern {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 0.95rem;
+    }
+
+    .grammar-item .g-meaning {
+      font-size: 0.86rem;
+      color: var(--text);
+      margin: 3px 0;
+    }
+
+    .grammar-item .g-example {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* Modal for Importing New Lesson JSON */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(3px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--surface);
+      border-radius: 16px;
+      max-width: 680px;
+      width: 100%;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-card h3 {
+      font-size: 1.15rem;
+      margin-bottom: 8px;
+    }
+
+    .modal-card textarea {
+      width: 100%;
+      height: 240px;
+      font-family: monospace;
+      font-size: 0.84rem;
+      margin: 12px 0;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      z-index: 300;
+      opacity: 0;
+      transform: translateY(10px);
+      pointer-events: none;
+      transition: all 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Top Bar -->
+  <header>
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-logo">中</div>
+        <div class="brand-title">
+          <h1>HSK 2 Thực Chiến — Super Chinese Lab</h1>
+          <p>Luyện cấu trúc câu • Dịch phản xạ • Đọc mặt chữ & Nghe giọng chuẩn</p>
+        </div>
+      </div>
+
+      <div class="global-controls">
+        <!-- Lesson Switcher -->
+        <div class="control-group">
+          <label for="lessonSelect">📚 Bài học:</label>
+          <select id="lessonSelect" aria-label="Chọn bài học"></select>
+          <button class="btn btn-outline btn-sm" id="btnOpenImportModal" title="Dán dữ liệu bài học mới từ AI">📥 Nhập bài mới</button>
+        </div>
+
+        <!-- Global Pinyin Toggle -->
+        <button class="btn btn-pinyin-active" id="btnGlobalPinyin" title="Phím tắt: Alt + P">
+          👁️ Pinyin: Đang Hiện
+        </button>
+
+        <!-- Speech Rate & Voice Controls -->
+        <div class="control-group">
+          <span>🔊 Tốc độ:</span>
+          <select id="speechRateSelect" aria-label="Tốc độ đọc">
+            <option value="0.75">0.75x (Chậm rõ)</option>
+            <option value="0.9">0.9x (Vừa phải)</option>
+            <option value="1" selected>1.0x (Chuẩn)</option>
+            <option value="1.15">1.15x (Phản xạ)</option>
+          </select>
+          <select id="voiceSelect" aria-label="Chọn giọng đọc tiếng Trung" style="max-width: 155px;">
+            <option value="">Giọng tiếng Trung mặc định</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-container">
+    <!-- Lesson Banner -->
+    <section class="lesson-banner">
+      <div class="lesson-info">
+        <h2 id="lessonTitle">Đang tải bài học...</h2>
+        <p id="lessonMeta">Hệ thống bài tập tự động trích xuất từ Super Chinese HSK 2</p>
+      </div>
+      <div class="score-pills">
+        <div class="score-pill">
+          <span class="label">Dạng 1 (Sắp xếp)</span>
+          <span class="val" id="scorePart1">0 / 15</span>
+        </div>
+        <div class="score-pill">
+          <span class="label">Dạng 2 (Dịch câu)</span>
+          <span class="val" id="scorePart2">0 / 15</span>
+        </div>
+        <div class="score-pill">
+          <span class="label">Dạng 3 (Đọc hiểu)</span>
+          <span class="val" id="scorePart3">0 / 3</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="tab-btn active" data-tab="tab-part1" role="tab">
+        <span class="tab-title"><span>🧩 Dạng 1: Sắp xếp từ</span><span>15 câu</span></span>
+        <span class="tab-sub">Luyện cấu trúc câu & trật tự từ HSK 2</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-part2" role="tab">
+        <span class="tab-title"><span>✍️ Dạng 2: Dịch Việt ➔ Trung</span><span>15 câu</span></span>
+        <span class="tab-sub">Giao tiếp đời sống & công việc cơ bản</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-part3" role="tab">
+        <span class="tab-title"><span>💬 Dạng 3: Hội thoại thực tế</span><span>6–8 câu</span></span>
+        <span class="tab-sub">Bản ẩn Pinyin luyện đọc mặt chữ & nghe</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-quizlet" role="tab">
+        <span class="tab-title"><span>📋 Từ vựng & Quizlet</span><span id="vocabCountBadge">14 từ</span></span>
+        <span class="tab-sub">Copy 1 lần nhập thẳng vào Quizlet</span>
+      </button>
+    </nav>
+
+    <!-- ==================== TAB 1: DẠNG 1 (15 CÂU SẮP XẾP TỪ) ==================== -->
+    <section id="tab-part1" class="tab-pane active">
+      <div class="section-toolbar">
+        <div class="section-toolbar-title">
+          <h3>🧩 Dạng 1: Sắp xếp từ xáo trộn thành câu hoàn chỉnh (15 câu)</h3>
+          <p>Bấm vào từng thẻ từ bên dưới để ghép thành câu đúng ngữ pháp HSK 2. Bấm vào từ đã ghép để bỏ ra.</p>
+        </div>
+        <div class="toolbar-actions">
+          <label style="font-size: 0.83rem; display: flex; align-items: center; gap: 5px; cursor: pointer;">
+            <input type="checkbox" id="chkSpeakOnClick" checked />
+            🔊 Phát âm khi bấm thẻ từ
+          </label>
+          <button class="btn btn-success" id="btnCheckAllPart1">✅ Kiểm tra tất cả 15 câu</button>
+          <button class="btn btn-outline" id="btnResetAllPart1">🔄 Làm lại Dạng 1</button>
+        </div>
+      </div>
+
+      <div id="part1List" class="questions-list"></div>
+    </section>
+
+    <!-- ==================== TAB 2: DẠNG 2 (15 CÂU DỊCH NGƯỢC VIỆT -> TRUNG) ==================== -->
+    <section id="tab-part2" class="tab-pane">
+      <div class="section-toolbar">
+        <div class="section-toolbar-title">
+          <h3>✍️ Dạng 2: Dịch ngược Việt ➔ Trung theo tình huống thực tế (15 câu)</h3>
+          <p>Gõ trực tiếp chữ Hán hoặc bấm các thẻ từ gợi ý bên dưới ô nhập để hoàn thành câu giao tiếp.</p>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-success" id="btnCheckAllPart2">✅ Kiểm tra tất cả 15 câu</button>
+          <button class="btn btn-outline" id="btnShowAllPart2">👁️ Hiện toàn bộ đáp án mẫu</button>
+          <button class="btn btn-outline" id="btnResetAllPart2">🔄 Làm lại Dạng 2</button>
+        </div>
+      </div>
+
+      <div id="part2List" class="questions-list"></div>
+    </section>
+
+    <!-- ==================== TAB 3: DẠNG 3 (ĐOẠN HỘI THOẠI 6-8 CÂU) ==================== -->
+    <section id="tab-part3" class="tab-pane">
+      <div class="section-toolbar">
+        <div class="section-toolbar-title">
+          <h3>💬 Dạng 3: Hội thoại giao tiếp thực tế (Luyện đọc mặt chữ & Nghe phản xạ)</h3>
+          <p>Mặc định <strong>Ẩn Pinyin</strong> để bạn luyện đọc mặt chữ Hán. Bấm nút bên phải để Bật/Tắt Pinyin hoặc Nghe toàn bài.</p>
+        </div>
+        <div class="toolbar-actions">
+          <button class="btn btn-audio" id="btnPlayFullDialogue">▶️ Phát toàn bộ hội thoại</button>
+          <button class="btn btn-pinyin-hidden" id="btnToggleDialoguePinyin">🙈 Pinyin Hội thoại: Đang Ẩn</button>
+          <button class="btn btn-outline" id="btnToggleDialogueVi">🇻🇳 Nghĩa Việt: Đang Ẩn</button>
+          <button class="btn btn-outline" id="btnToggleDialogueBlur" title="Làm mờ chữ Hán để chỉ nghe âm thanh và nhại lại">🎧 Chế độ Nghe Phản Xạ (Che chữ)</button>
+        </div>
+      </div>
+
+      <div id="dialogueScenario" class="dialogue-scenario"></div>
+
+      <div id="dialogueContainer" class="dialogue-container dialogue-hide-pinyin dialogue-hide-vi">
+        <div id="dialogueList" class="dialogue-list"></div>
+      </div>
+
+      <!-- Comprehension Check -->
+      <div class="comp-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+          <h4>🎯 Kiểm tra nhanh mức độ hiểu đoạn hội thoại</h4>
+          <button class="btn btn-primary" id="btnCheckPart3">✅ Kiểm tra đáp án Đọc hiểu</button>
+        </div>
+        <div id="compList"></div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: TỪ VỰNG & COPY QUIZLET ==================== -->
+    <section id="tab-quizlet" class="tab-pane">
+      <div class="quizlet-grid">
+        <div class="panel-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <h3>📖 Bảng Từ Vựng & Ngữ Pháp Bài Học</h3>
+            <button class="btn btn-audio btn-sm" id="btnSpeakAllVocab">🔊 Đọc toàn bộ từ vựng</button>
+          </div>
+          <p class="sub">Bấm vào nút loa ở từng dòng để nghe phát âm chuẩn Web Speech API.</p>
+          <div style="overflow-x:auto;">
+            <table class="vocab-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Chữ Hán</th>
+                  <th>Pinyin</th>
+                  <th>Nghĩa tiếng Việt</th>
+                  <th>Phát âm</th>
+                </tr>
+              </thead>
+              <tbody id="vocabTableBody"></tbody>
+            </table>
+          </div>
+
+          <h3 style="margin-top:24px;">📐 Điểm Ngữ Pháp Trọng Tâm</h3>
+          <div id="grammarList" class="grammar-list"></div>
+        </div>
+
+        <div class="panel-card">
+          <h3>⚡ Xuất nhanh sang Quizlet (1-Click Copy)</h3>
+          <p class="sub">Định dạng chuẩn: <code>Chữ Hán + [Tab] + (Pinyin) Nghĩa tiếng Việt</code>. Bấm Copy rồi dán thẳng vào ô Import của Quizlet.</p>
+          <textarea id="quizletText" class="quizlet-textarea" readonly></textarea>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-primary" id="btnCopyQuizlet">📋 Copy toàn bộ sang Quizlet</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Nhập bài học mới (JSON) -->
+  <div class="modal-backdrop" id="importModal">
+    <div class="modal-card">
+      <h3>📥 Nhập dữ liệu bài học mới từ AI</h3>
+      <p style="font-size:0.86rem; color:var(--text-muted);">
+        Khi bạn gửi ảnh chụp màn hình Super Chinese cho AI trong workspace này, AI sẽ tự động cập nhật trực tiếp vào file <code>index.html</code>. Ngoài ra bạn cũng có thể dán khối JSON bài học vào ô dưới đây để nạp thêm bài mới:
+      </p>
+      <textarea id="importJsonTextarea" placeholder='{"id": "bai-moi", "title": "Bài học mới...", ...}'></textarea>
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn btn-outline" id="btnCloseImportModal">Đóng</button>
+        <button class="btn btn-primary" id="btnConfirmImport">Nạp bài học</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Đã sao chép!</div>
+
+  <script>
+    /********************************************************************
+     * DỮ LIỆU BÀI HỌC MẶC ĐỊNH (CHUẨN HSK 2 - SUPER CHINESE)
+     * Mỗi khi bạn gửi ảnh chụp màn hình Super Chinese, AI sẽ cập nhật
+     * hoặc thêm bài học mới trực tiếp vào mảng LESSONS_DATA này.
+     ********************************************************************/
+    const LESSONS_DATA = [
+      {
+        id: "hsk2-superchinese-unit-sample",
+        title: "Bài Mẫu HSK 2: Chuẩn Bị Công Tác & Giao Tiếp Hàng Ngày",
+        date: "2026-11-23",
+        grammarNotes: [
+          {
+            pattern: "已经 + Động từ + (好 / 完) + 了",
+            meaning: "Diễn tả hành động đã hoàn tất hoặc chuẩn bị xong xuôi.",
+            example: "明天的会议资料我已经准备好了。(Tài liệu cuộc họp ngày mai tôi đã chuẩn bị xong rồi.)"
+          },
+          {
+            pattern: "Địa điểm A + 离 + Địa điểm B + 很近 / 很远",
+            meaning: "Diễn tả khoảng cách từ nơi A cách nơi B gần hay xa.",
+            example: "我们公司离机场不太远。(Công ty chúng tôi cách sân bay không xa lắm.)"
+          },
+          {
+            pattern: "正在 + Động từ + (+ Tân ngữ) + 呢",
+            meaning: "Diễn tả hành động đang diễn ra ngay tại thời điểm nói.",
+            example: "王经理正在开会呢。(Giám đốc Vương đang họp đấy.)"
+          },
+          {
+            pattern: "A + 比 + B + Tính từ (+ 一点儿 / 得多)",
+            meaning: "Câu so sánh hơn trong tiếng Trung HSK 2.",
+            example: "坐地铁比坐公共汽车快得多。(Đi tàu điện ngầm nhanh hơn đi xe buýt nhiều.)"
+          }
+        ],
+        vocab: [
+          { hanzi: "准备", pinyin: "zhǔnbèi", meaning: "chuẩn bị", pos: "Động từ" },
+          { hanzi: "已经", pinyin: "yǐjīng", meaning: "đã, rồi", pos: "Phó từ" },
+          { hanzi: "服务员", pinyin: "fúwùyuán", meaning: "nhân viên phục vụ", pos: "Danh từ" },
+          { hanzi: "便宜", pinyin: "piányi", meaning: "rẻ", pos: "Tính từ" },
+          { hanzi: "离", pinyin: "lí", meaning: "cách (khoảng cách)", pos: "Giới từ" },
+          { hanzi: "机场", pinyin: "jīchǎng", meaning: "sân bay", pos: "Danh từ" },
+          { hanzi: "公共汽车", pinyin: "gōnggòng qìchē", meaning: "xe buýt", pos: "Danh từ" },
+          { hanzi: "小时", pinyin: "xiǎoshí", meaning: "tiếng, giờ đồng hồ", pos: "Danh từ" },
+          { hanzi: "正在", pinyin: "zhèngzài", meaning: "đang", pos: "Phó từ" },
+          { hanzi: "告诉", pinyin: "gàosu", meaning: "nói cho biết, báo cho", pos: "Động từ" },
+          { hanzi: "介绍", pinyin: "jièshào", meaning: "giới thiệu", pos: "Động từ" },
+          { hanzi: "意思", pinyin: "yìsi", meaning: "ý nghĩa, ý", pos: "Danh từ" },
+          { hanzi: "开始", pinyin: "kāishǐ", meaning: "bắt đầu", pos: "Động từ" },
+          { hanzi: "还是", pinyin: "háishi", meaning: "hay là (câu hỏi lựa chọn)", pos: "Liên từ" }
+        ],
+        part1_scramble: [
+          {
+            id: 1,
+            vi: "Tôi đã chuẩn bị xong bữa tối rồi.",
+            words: [
+              { hanzi: "晚饭", pinyin: "wǎnfàn" },
+              { hanzi: "已经", pinyin: "yǐjīng" },
+              { hanzi: "我", pinyin: "wǒ" },
+              { hanzi: "准备好", pinyin: "zhǔnbèi hǎo" },
+              { hanzi: "了", pinyin: "le" }
+            ],
+            answer: "我已经准备好晚饭了。",
+            accepted: ["我已经准备好晚饭了", "晚饭我已经准备好了"],
+            pinyin: "Wǒ yǐjīng zhǔnbèi hǎo wǎnfàn le.",
+            note: "Cấu trúc: Chủ ngữ + 已经 + Động từ + 好 (bổ ngữ kết quả) + Tân ngữ + 了."
+          },
+          {
+            id: 2,
+            vi: "Nhà tôi cách sân bay không xa lắm.",
+            words: [
+              { hanzi: "不太远", pinyin: "bú tài yuǎn" },
+              { hanzi: "机场", pinyin: "jīchǎng" },
+              { hanzi: "我家", pinyin: "wǒ jiā" },
+              { hanzi: "离", pinyin: "lí" }
+            ],
+            answer: "我家离机场不太远。",
+            accepted: ["我家离机场不太远", "机场离我家不太远"],
+            pinyin: "Wǒ jiā lí jīchǎng bú tài yuǎn.",
+            note: "Cấu trúc khoảng cách: A + 离 + B + 很近 / 很远 / 不太远."
+          },
+          {
+            id: 3,
+            vi: "Bộ quần áo này rẻ hơn bộ kia một chút.",
+            words: [
+              { hanzi: "那件", pinyin: "nà jiàn" },
+              { hanzi: "便宜", pinyin: "piányi" },
+              { hanzi: "这件衣服", pinyin: "zhè jiàn yīfu" },
+              { hanzi: "一点儿", pinyin: "yìdiǎnr" },
+              { hanzi: "比", pinyin: "bǐ" }
+            ],
+            answer: "这件衣服比那件便宜一点儿。",
+            accepted: ["这件衣服比那件便宜一点儿"],
+            pinyin: "Zhè jiàn yīfu bǐ nà jiàn piányi yìdiǎnr.",
+            note: "Câu so sánh: A + 比 + B + Tính từ + 一点儿 (hơn một chút)."
+          },
+          {
+            id: 4,
+            vi: "Chúng ta đi xe buýt hay là đi taxi?",
+            words: [
+              { hanzi: "坐出租车", pinyin: "zuò chūzūchē" },
+              { hanzi: "还是", pinyin: "háishi" },
+              { hanzi: "我们", pinyin: "wǒmen" },
+              { hanzi: "坐公共汽车", pinyin: "zuò gōnggòng qìchē" }
+            ],
+            answer: "我们坐公共汽车还是坐出租车？",
+            accepted: ["我们坐公共汽车还是坐出租车", "我们坐出租车还是坐公共汽车"],
+            pinyin: "Wǒmen zuò gōnggòng qìchē háishi zuò chūzūchē?",
+            note: "Câu hỏi lựa chọn dùng 还是 (hay là): Phương án A + 还是 + Phương án B?"
+          },
+          {
+            id: 5,
+            vi: "Anh ấy đang gọi điện thoại cho khách hàng đấy.",
+            words: [
+              { hanzi: "打电话", pinyin: "dǎ diànhuà" },
+              { hanzi: "正在", pinyin: "zhèngzài" },
+              { hanzi: "呢", pinyin: "ne" },
+              { hanzi: "他", pinyin: "tā" },
+              { hanzi: "给客户", pinyin: "gěi kèhù" }
+            ],
+            answer: "他正在给客户打电话呢。",
+            accepted: ["他正在给客户打电话呢"],
+            pinyin: "Tā zhèngzài gěi kèhù dǎ diànhuà ne.",
+            note: "Cấu trúc: 正在 + 给 (cho ai) + Động từ + 呢."
+          },
+          {
+            id: 6,
+            vi: "Từ đây ngồi xe buýt đến công ty mất một tiếng đồng hồ.",
+            words: [
+              { hanzi: "到公司", pinyin: "dào gōngsī" },
+              { hanzi: "一个小时", pinyin: "yí gè xiǎoshí" },
+              { hanzi: "从这儿", pinyin: "cóng zhèr" },
+              { hanzi: "要", pinyin: "yào" },
+              { hanzi: "坐公共汽车", pinyin: "zuò gōnggòng qìchē" }
+            ],
+            answer: "从这儿坐公共汽车到公司要一个小时。",
+            accepted: ["从这儿坐公共汽车到公司要一个小时", "坐公共汽车从这儿到公司要一个小时"],
+            pinyin: "Cóng zhèr zuò gōnggòng qìchē dào gōngsī yào yí gè xiǎoshí.",
+            note: "Cấu trúc: 从 (từ đâu) + Phương tiện + 到 (đến đâu) + 要 + Thời lượng."
+          },
+          {
+            id: 7,
+            vi: "Nhân viên phục vụ đang giới thiệu món ăn mới cho chúng tôi.",
+            words: [
+              { hanzi: "新菜", pinyin: "xīn cài" },
+              { hanzi: "介绍", pinyin: "jièshào" },
+              { hanzi: "服务员", pinyin: "fúwùyuán" },
+              { hanzi: "给我们", pinyin: "gěi wǒmen" },
+              { hanzi: "正在", pinyin: "zhèngzài" }
+            ],
+            answer: "服务员正在给我们介绍新菜。",
+            accepted: ["服务员正在给我们介绍新菜"],
+            pinyin: "Fúwùyuán zhèngzài gěi wǒmen jièshào xīn cài.",
+            note: "给 + Tân ngữ chỉ người + 介绍 + Tân ngữ chỉ vật."
+          },
+          {
+            id: 8,
+            vi: "Xin đừng nói cho anh ấy biết chuyện này.",
+            words: [
+              { hanzi: "这件事", pinyin: "zhè jiàn shì" },
+              { hanzi: "告诉", pinyin: "gàosu" },
+              { hanzi: "别", pinyin: "bié" },
+              { hanzi: "他", pinyin: "tā" },
+              { hanzi: "请", pinyin: "qǐng" }
+            ],
+            answer: "请别告诉他这件事。",
+            accepted: ["请别告诉他这件事", "这件事请别告诉他"],
+            pinyin: "Qǐng bié gàosu tā zhè jiàn shì.",
+            note: "Câu cầu khiến phủ định: 请别 + Động từ (告诉 + Ai + Chuyện gì)."
+          },
+          {
+            id: 9,
+            vi: "Chữ Hán này có nghĩa là gì?",
+            words: [
+              { hanzi: "意思", pinyin: "yìsi" },
+              { hanzi: "是", pinyin: "shì" },
+              { hanzi: "这个汉字", pinyin: "zhège Hànzì" },
+              { hanzi: "什么", pinyin: "shénme" }
+            ],
+            answer: "这个汉字是什么意思？",
+            accepted: ["这个汉字是什么意思"],
+            pinyin: "Zhège Hànzì shì shénme yìsi?",
+            note: "Mẫu câu hỏi nghĩa thông dụng: ...是什么意思？"
+          },
+          {
+            id: 10,
+            vi: "Cuộc họp buổi sáng mấy giờ bắt đầu?",
+            words: [
+              { hanzi: "开始", pinyin: "kāishǐ" },
+              { hanzi: "上午的会议", pinyin: "shàngwǔ de huìyì" },
+              { hanzi: "几点", pinyin: "jǐ diǎn" }
+            ],
+            answer: "上午的会议几点开始？",
+            accepted: ["上午的会议几点开始", "几点开始上午的会议"],
+            pinyin: "Shàngwǔ de huìyì jǐ diǎn kāishǐ?",
+            note: "Chủ ngữ + Từ để hỏi thời gian (几点) + Động từ (开始)?"
+          },
+          {
+            id: 11,
+            vi: "Bộ phim đã bắt đầu được hai mươi phút rồi.",
+            words: [
+              { hanzi: "二十分钟", pinyin: "èrshí fēnzhōng" },
+              { hanzi: "已经", pinyin: "yǐjīng" },
+              { hanzi: "电影", pinyin: "diànyǐng" },
+              { hanzi: "开始", pinyin: "kāishǐ" },
+              { hanzi: "了", pinyin: "le" }
+            ],
+            answer: "电影已经开始二十分钟了。",
+            accepted: ["电影已经开始二十分钟了"],
+            pinyin: "Diànyǐng yǐjīng kāishǐ èrshí fēnzhōng le.",
+            note: "已经 + Động từ + Khoảng thời gian + 了."
+          },
+          {
+            id: 12,
+            vi: "Ngày mai tôi chuẩn bị đi Bắc Kinh công tác.",
+            words: [
+              { hanzi: "出差", pinyin: "chūchāi" },
+              { hanzi: "去北京", pinyin: "qù Běijīng" },
+              { hanzi: "我明天", pinyin: "wǒ míngtiān" },
+              { hanzi: "准备", pinyin: "zhǔnbèi" }
+            ],
+            answer: "我明天准备去北京出差。",
+            accepted: ["我明天准备去北京出差", "明天我准备去北京出差"],
+            pinyin: "Wǒ míngtiān zhǔnbèi qù Běijīng chūchāi.",
+            note: "准备 + Động từ (dự định / chuẩn bị làm gì)."
+          },
+          {
+            id: 13,
+            vi: "Hôm qua tôi đã đọc sách tiếng Trung suốt hai tiếng đồng hồ.",
+            words: [
+              { hanzi: "中文书", pinyin: "Zhōngwén shū" },
+              { hanzi: "两个小时", pinyin: "liǎng gè xiǎoshí" },
+              { hanzi: "我昨天", pinyin: "wǒ zuótiān" },
+              { hanzi: "看了", pinyin: "kàn le" }
+            ],
+            answer: "我昨天看了两个小时中文书。",
+            accepted: ["我昨天看了两个小时中文书"],
+            pinyin: "Wǒ zuótiān kàn le liǎng gè xiǎoshí Zhōngwén shū.",
+            note: "Bổ ngữ thời lượng: Động từ + 了 + Thời lượng + Tân ngữ."
+          },
+          {
+            id: 14,
+            vi: "Bạn hãy giúp tôi giới thiệu một khách sạn giá rẻ nhé.",
+            words: [
+              { hanzi: "便宜的宾馆", pinyin: "piányi de bīnguǎn" },
+              { hanzi: "介绍", pinyin: "jièshào" },
+              { hanzi: "你帮我", pinyin: "nǐ bāng wǒ" },
+              { hanzi: "一个", pinyin: "yí gè" },
+              { hanzi: "吧", pinyin: "ba" }
+            ],
+            answer: "你帮我介绍一个便宜的宾馆吧。",
+            accepted: ["你帮我介绍一个便宜的宾馆吧"],
+            pinyin: "Nǐ bāng wǒ jièshào yí gè piányi de bīnguǎn ba.",
+            note: "帮 + Ai + Động từ + Số lượng từ + Tính từ +的 + Danh từ + 吧."
+          },
+          {
+            id: 15,
+            vi: "Khi nào anh ấy đến sân bay thì hãy báo cho tôi biết.",
+            words: [
+              { hanzi: "告诉我", pinyin: "gàosu wǒ" },
+              { hanzi: "到了机场", pinyin: "dào le jīchǎng" },
+              { hanzi: "就", pinyin: "jiù" },
+              { hanzi: "他", pinyin: "tā" }
+            ],
+            answer: "他到了机场就告诉我。",
+            accepted: ["他到了机场就告诉我"],
+            pinyin: "Tā dào le jīchǎng jiù gàosu wǒ.",
+            note: "Liên từ 就 (thì liền/ngay): Hành động 1 vừa xong + 就 + Hành động 2."
+          }
+        ],
+        part2_translate: [
+          {
+            id: 1,
+            context: "Đời sống • Gia đình",
+            contextType: "life",
+            vi: "Mẹ đã chuẩn bị xong bữa sáng rồi, mau dậy ăn đi!",
+            hint: "Gợi ý: 妈妈 (māma), 已经 (yǐjīng), 准备好 (zhǔnbèi hǎo), 早饭 (zǎofàn), 快起床吃吧 (kuài qǐchuáng chī ba)",
+            keywords: ["妈妈", "已经", "准备好", "早饭", "了", "快", "起床", "吃吧"],
+            answer: "妈妈已经准备好早饭了，快起床吃吧！",
+            accepted: [
+              "妈妈已经准备好早饭了快起床吃吧",
+              "早饭妈妈已经准备好了快起床吃吧",
+              "妈妈已经把早饭准备好了快起床吃吧"
+            ],
+            pinyin: "Māma yǐjīng zhǔnbèi hǎo zǎofàn le, kuài qǐchuáng chī ba!",
+            note: "Dùng 已经 + 准备好 + 早饭 + 了 để nhấn mạnh bữa sáng đã sẵn sàng."
+          },
+          {
+            id: 2,
+            context: "Đời sống • Mua sắm",
+            contextType: "life",
+            vi: "Trái cây ở cửa hàng này rẻ hơn ở siêu thị nhiều.",
+            hint: "Gợi ý: 这家商店的水果 (zhè jiā shāngdiàn de shuǐguǒ), 比 (bǐ), 超市 (chāoshì), 便宜得多 (piányi de duō)",
+            keywords: ["这家商店", "的", "水果", "比", "超市", "便宜", "得多"],
+            answer: "这家商店的水果比超市便宜得多。",
+            accepted: [
+              "这家商店的水果比超市便宜得多",
+              "这个商店的水果比超市便宜很多",
+              "这家店的水果比超市便宜得多"
+            ],
+            pinyin: "Zhè jiā shāngdiàn de shuǐguǒ bǐ chāoshì piányi de duō.",
+            note: "Cấu trúc so sánh mức độ lớn: A 比 B + Tính từ + 得多 / 很多."
+          },
+          {
+            id: 3,
+            context: "Đời sống • Nhà hàng",
+            contextType: "life",
+            vi: "Nhân viên phục vụ ơi, xin giới thiệu cho chúng tôi mấy món ngon nhé.",
+            hint: "Gợi ý: 服务员 (fúwùyuán), 请给我们介绍 (qǐng gěi wǒmen jièshào), 几个好吃的菜 (jǐ gè hǎochī de cài)",
+            keywords: ["服务员", "请", "给我们", "介绍", "几个", "好吃的菜", "吧"],
+            answer: "服务员，请给我们介绍几个好吃的菜吧。",
+            accepted: [
+              "服务员请给我们介绍几个好吃的菜吧",
+              "服务员请给我们介绍几个好吃的菜",
+              "服务员给我们介绍几个好吃的菜吧"
+            ],
+            pinyin: "Fúwùyuán, qǐng gěi wǒmen jièshào jǐ gè hǎochī de cài ba.",
+            note: "给 + Ai + 介绍 + Cái gì: Giới thiệu cái gì cho ai."
+          },
+          {
+            id: 4,
+            context: "Đời sống • Đi lại",
+            contextType: "life",
+            vi: "Từ khách sạn đến sân bay ngồi xe buýt mất hơn một tiếng đồng hồ.",
+            hint: "Gợi ý: 从宾馆到机场 (cóng bīnguǎn dào jīchǎng), 坐公共汽车 (zuò gōnggòng qìchē), 要一个多小时 (yào yí gè duō xiǎoshí)",
+            keywords: ["从宾馆", "到机场", "坐公共汽车", "要", "一个多小时"],
+            answer: "从宾馆到机场坐公共汽车要一个多小时。",
+            accepted: [
+              "从宾馆到机场坐公共汽车要一个多小时",
+              "坐公共汽车从宾馆到机场要一个多小时",
+              "从酒店到机场坐公共汽车要一个多小时"
+            ],
+            pinyin: "Cóng bīnguǎn dào jīchǎng zuò gōnggòng qìchē yào yí gè duō xiǎoshí.",
+            note: "一个多小时: Hơn 1 tiếng đồng hồ (Số lượng + 多 + Danh từ)."
+          },
+          {
+            id: 5,
+            context: "Đời sống • Hỏi khoảng cách",
+            contextType: "life",
+            vi: "Trường học cách bến xe buýt có xa không?",
+            hint: "Gợi ý: 学校 (xuéxiào), 离 (lí), 公共汽车站 (gōnggòng qìchēzhàn), 远吗 / 远不远",
+            keywords: ["学校", "离", "公共汽车站", "远吗", "远不远"],
+            answer: "学校离公共汽车站远吗？",
+            accepted: [
+              "学校离公共汽车站远吗",
+              "学校离公共汽车站远不远",
+              "公共汽车站离学校远吗"
+            ],
+            pinyin: "Xuéxiào lí gōnggòng qìchēzhàn yuǎn ma?",
+            note: "Hỏi khoảng cách với giới từ 离: A 离 B 远吗？ / 远不远？"
+          },
+          {
+            id: 6,
+            context: "Đời sống • Hẹn bạn bè",
+            contextType: "life",
+            vi: "Tối nay chúng ta ăn cơm ở nhà hay là ra ngoài ăn?",
+            hint: "Gợi ý: 今天晚上 (jīntiān wǎnshang), 我们 (wǒmen), 在家吃饭 (zài jiā chīfàn), 还是 (háishi), 去外面吃 (qù wàimiàn chī)",
+            keywords: ["今天晚上", "我们", "在家吃饭", "还是", "去外面吃"],
+            answer: "今天晚上我们在家吃饭还是去外面吃？",
+            accepted: [
+              "今天晚上我们在家吃饭还是去外面吃",
+              "今晚我们在家吃饭还是去外面吃",
+              "今天晚上我们去外面吃还是在家吃饭"
+            ],
+            pinyin: "Jīntiān wǎnshang wǒmen zài jiā chīfàn háishi qù wàimiàn chī?",
+            note: "Câu hỏi lựa chọn với 还是."
+          },
+          {
+            id: 7,
+            context: "Đời sống • Học tập",
+            contextType: "life",
+            vi: "Câu tiếng Trung này có nghĩa là gì? Bạn nói cho tôi biết được không?",
+            hint: "Gợi ý: 这句中文 (zhè jù Zhōngwén), 是什么意思 (shì shénme yìsi), 你能告诉我吗 (nǐ néng gàosu wǒ ma)",
+            keywords: ["这句中文", "是", "什么意思", "你能", "告诉我", "吗"],
+            answer: "这句中文是什么意思？你能告诉我吗？",
+            accepted: [
+              "这句中文是什么意思你能告诉我吗",
+              "这句话是什么意思你能告诉我吗",
+              "这句汉语是什么意思你可以告诉我吗"
+            ],
+            pinyin: "Zhè jù Zhōngwén shì shénme yìsi? Nǐ néng gàosu wǒ ma?",
+            note: "Kết hợp mẫu câu hỏi nghĩa ...是什么意思 và động từ 告诉 (nói cho biết)."
+          },
+          {
+            id: 8,
+            context: "Đời sống • Giải trí",
+            contextType: "life",
+            vi: "Trận bóng đá đã bắt đầu rồi, anh ấy đang xem tivi trong phòng đấy.",
+            hint: "Gợi ý: 足球比赛 (zúqiú bǐsài), 已经开始了 (yǐjīng kāishǐ le), 他正在房间里看电视呢 (tā zhèngzài fángjiān lǐ kàn diànshì ne)",
+            keywords: ["足球比赛", "已经开始了", "他", "正在", "房间里", "看电视", "呢"],
+            answer: "足球比赛已经开始了，他正在房间里看电视呢。",
+            accepted: [
+              "足球比赛已经开始了他在房间里看电视呢",
+              "足球比赛已经开始了他正在房间里看电视呢",
+              "足球比赛已经开始了他正在房间看电视呢"
+            ],
+            pinyin: "Zúqiú bǐsài yǐjīng kāishǐ le, tā zhèngzài fángjiān lǐ kàn diànshì ne.",
+            note: "Kết hợp 已经...了 (đã bắt đầu) và 正在...呢 (đang xem)."
+          },
+          {
+            id: 9,
+            context: "Công việc • Họp hành",
+            contextType: "work",
+            vi: "Tài liệu cuộc họp chiều nay tôi đã chuẩn bị xong hết rồi.",
+            hint: "Gợi ý: 今天下午的会议资料 (jīntiān xiàwǔ de huìyì zīliào), 我已经准备好了 (wǒ yǐjīng zhǔnbèi hǎo le)",
+            keywords: ["今天下午", "的", "会议资料", "我", "已经", "准备好", "了"],
+            answer: "今天下午的会议资料我已经准备好了。",
+            accepted: [
+              "今天下午的会议资料我已经准备好了",
+              "我已经准备好今天下午的会议资料了",
+              "下午的会议资料我已经准备好了"
+            ],
+            pinyin: "Jīntiān xiàwǔ de huìyì zīliào wǒ yǐjīng zhǔnbèi hǎo le.",
+            note: "Câu giao tiếp công sở cực kỳ phổ biến khi báo cáo tiến độ."
+          },
+          {
+            id: 10,
+            context: "Công việc • Văn phòng",
+            contextType: "work",
+            vi: "Giám đốc Vương đang họp, một tiếng nữa bạn hãy gọi lại nhé.",
+            hint: "Gợi ý: 王经理正在开会呢 (Wáng jīnglǐ zhèngzài kāihuì ne), 你一个小时后再打来吧 (nǐ yí gè xiǎoshí hòu zài dǎ lái ba)",
+            keywords: ["王经理", "正在开会呢", "你", "一个小时后", "再打电话吧"],
+            answer: "王经理正在开会呢，你一个小时后再打电话吧。",
+            accepted: [
+              "王经理正在开会呢你一个小时后再打电话吧",
+              "王经理正在开会你一个小时后再打吧",
+              "王经理正在开会呢你一个小时以后再打来吧"
+            ],
+            pinyin: "Wáng jīnglǐ zhèngzài kāihuì ne, nǐ yí gè xiǎoshí hòu zài dǎ diànhuà ba.",
+            note: "一个小时后 (sau 1 tiếng nữa) + 再 + Động từ."
+          },
+          {
+            id: 11,
+            context: "Công việc • Đi làm",
+            contextType: "work",
+            vi: "Công ty mới cách nhà tôi rất gần, đi bộ mười lăm phút là tới.",
+            hint: "Gợi ý: 新公司离我家很近 (xīn gōngsī lí wǒ jiā hěn jìn), 走路十五分钟就到了 (zǒulù shíwǔ fēnzhōng jiù dào le)",
+            keywords: ["新公司", "离我家", "很近", "走路", "十五分钟", "就到了"],
+            answer: "新公司离我家很近，走路十五分钟就到了。",
+            accepted: [
+              "新公司离我家很近走路十五分钟就到了",
+              "新公司离我家很近走十五分钟就到了"
+            ],
+            pinyin: "Xīn gōngsī lí wǒ jiā hěn jìn, zǒulù shíwǔ fēnzhōng jiù dào le.",
+            note: "Phó từ 就到了 nhấn mạnh mất rất ít thời gian là tới nơi."
+          },
+          {
+            id: 12,
+            context: "Công việc • Đón tiếp đối tác",
+            contextType: "work",
+            vi: "Để tôi giới thiệu với mọi người một chút, đây là đồng nghiệp mới của chúng ta.",
+            hint: "Gợi ý: 我给大家介绍一下 (wǒ gěi dàjiā jièshào yíxià), 这是我们的新同事 (zhè shì wǒmen de xīn tóngshì)",
+            keywords: ["我", "给大家", "介绍一下", "这是", "我们的", "新同事"],
+            answer: "我给大家介绍一下，这是我们的新同事。",
+            accepted: [
+              "我给大家介绍一下这是我们的新同事",
+              "我向大家介绍一下这是我们的新同事"
+            ],
+            pinyin: "Wǒ gěi dàjiā jièshào yíxià, zhè shì wǒmen de xīn tóngshì.",
+            note: "介绍一下: Giới thiệu một chút (Động từ + 一下 làm câu mềm mại, lịch sự)."
+          },
+          {
+            id: 13,
+            context: "Công việc • Đi công tác",
+            contextType: "work",
+            vi: "Ngày mai bạn đi sân bay bằng xe buýt hay là đi taxi?",
+            hint: "Gợi ý: 明天你坐公共汽车还是坐出租车去机场？",
+            keywords: ["明天", "你", "坐公共汽车", "还是", "坐出租车", "去机场"],
+            answer: "明天你坐公共汽车还是坐出租车去机场？",
+            accepted: [
+              "明天你坐公共汽车还是坐出租车去机场",
+              "你明天坐公共汽车还是坐出租车去机场",
+              "明天你去机场坐公共汽车还是坐出租车"
+            ],
+            pinyin: "Míngtiān nǐ zuò gōnggòng qìchē háishi zuò chūzūchē qù jīchǎng?",
+            note: "Câu liên động kết hợp câu hỏi lựa chọn 还是."
+          },
+          {
+            id: 14,
+            context: "Công việc • Thông báo lịch họp",
+            contextType: "work",
+            vi: "Xin hãy báo cho mọi người biết cuộc họp bắt đầu lúc chín giờ sáng mai.",
+            hint: "Gợi ý: 请告诉大家 (qǐng gàosu dàjiā), 会议明天上午九点开始 (huìyì míngtiān shàngwǔ jiǔ diǎn kāishǐ)",
+            keywords: ["请", "告诉大家", "会议", "明天上午", "九点", "开始"],
+            answer: "请告诉大家会议明天上午九点开始。",
+            accepted: [
+              "请告诉大家会议明天上午九点开始",
+              "请告诉大家明天上午九点开始开会",
+              "请告诉大家明天的会议上午九点开始"
+            ],
+            pinyin: "Qǐng gàosu dàjiā huìyì míngtiān shàngwǔ jiǔ diǎn kāishǐ.",
+            note: "告诉 + Ai + Nội dung thông báo."
+          },
+          {
+            id: 15,
+            context: "Công việc • Giờ làm việc",
+            contextType: "work",
+            vi: "Hôm nay tôi đã làm việc ở công ty suốt chín tiếng đồng hồ rồi.",
+            hint: "Gợi ý: 今天我已经在公司工作了九个小时了。",
+            keywords: ["今天", "我已经", "在公司", "工作了", "九个小时", "了"],
+            answer: "今天我已经在公司工作了九个小时了。",
+            accepted: [
+              "今天我已经在公司工作了九个小时了",
+              "我今天已经在公司工作九个小时了",
+              "今天我在公司已经工作了九个小时了"
+            ],
+            pinyin: "Jīntiān wǒ yǐjīng zài gōngsī gōngzuò le jiǔ gè xiǎoshí le.",
+            note: "在 + Địa điểm + Động từ + 了 + Thời lượng + 了."
+          }
+        ],
+        part3_dialogue: {
+          scenario: "Tình huống: Tiểu Vương (小王) và Lý Na (李娜) là đồng nghiệp. Sáng mai hai người sẽ ra sân bay đi Thượng Hải công tác và đang trao đổi về việc chuẩn bị tài liệu cũng như phương tiện di chuyển.",
+          lines: [
+            {
+              speaker: "A",
+              name: "小王 (Tiểu Vương)",
+              hanzi: "李娜，明天上午我们去上海出差，你的东西都准备好了吗？",
+              pinyin: "Lǐ Nà, míngtiān shàngwǔ wǒmen qù Shànghǎi chūchāi, nǐ de dōngxi dōu zhǔnbèi hǎo le ma?",
+              vi: "Lý Na, sáng mai chúng ta đi Thượng Hải công tác, đồ đạc của bạn đều đã chuẩn bị xong cả chưa?"
+            },
+            {
+              speaker: "B",
+              name: "李娜 (Lý Na)",
+              hanzi: "我已经准备好了。给客户介绍新产品的资料我也带了。",
+              pinyin: "Wǒ yǐjīng zhǔnbèi hǎo le. Gěi kèhù jièshào xīn chǎnpǐn de zīliào wǒ yě dài le.",
+              vi: "Tôi đã chuẩn bị xong rồi. Tài liệu giới thiệu sản phẩm mới cho khách hàng tôi cũng mang theo rồi."
+            },
+            {
+              speaker: "A",
+              name: "小王 (Tiểu Vương)",
+              hanzi: "太好了！明天我们坐公共汽车去机场还是坐出租车去？",
+              pinyin: "Tài hǎo le! Míngtiān wǒmen zuò gōnggòng qìchē qù jīchǎng háishi zuò chūzūchē qù?",
+              vi: "Tuyệt quá! Ngày mai chúng ta đi xe buýt ra sân bay hay là đi taxi?"
+            },
+            {
+              speaker: "B",
+              name: "李娜 (Lý Na)",
+              hanzi: "我们公司离机场很远，坐公共汽车要一个多小时呢。",
+              pinyin: "Wǒmen gōngsī lí jīchǎng hěn yuǎn, zuò gōnggòng qìchē yào yí gè duō xiǎoshí ne.",
+              vi: "Công ty chúng ta cách sân bay rất xa, đi xe buýt mất hơn một tiếng đồng hồ đấy."
+            },
+            {
+              speaker: "A",
+              name: "小王 (Tiểu Vương)",
+              hanzi: "你的意思是我们坐出租车去，对吗？",
+              pinyin: "Nǐ de yìsi shì wǒmen zuò chūzūchē qù, duì ma?",
+              vi: "Ý của bạn là chúng ta đi bằng taxi, đúng không?"
+            },
+            {
+              speaker: "B",
+              name: "李娜 (Lý Na)",
+              hanzi: "我建议坐地铁去。坐地铁比坐公共汽车快得多，而且很便宜。",
+              pinyin: "Wǒ jiànyì zuò dìtiě qù. Zuò dìtiě bǐ zuò gōnggòng qìchē kuài de duō, érqiě hěn piányi.",
+              vi: "Tôi đề xuất đi tàu điện ngầm. Đi tàu điện ngầm nhanh hơn đi xe buýt nhiều, hơn nữa lại rất rẻ."
+            },
+            {
+              speaker: "A",
+              name: "小王 (Tiểu Vương)",
+              hanzi: "好，那我先去告诉王经理我们明天早上七点从公司出发。",
+              pinyin: "Hǎo, nà wǒ xiān qù gàosu Wáng jīnglǐ wǒmen míngtiān zǎoshang qī diǎn cóng gōngsī chūfā.",
+              vi: "Được, vậy tôi đi báo cho Giám đốc Vương trước là 7 giờ sáng mai chúng ta xuất phát từ công ty."
+            },
+            {
+              speaker: "B",
+              name: "李娜 (Lý Na)",
+              hanzi: "王经理正在开会呢，会议十一点才结束，你下午再告诉他吧。",
+              pinyin: "Wáng jīnglǐ zhèngzài kāihuì ne, huìyì shíyī diǎn cái jiéshù, nǐ xiàwǔ zài gàosu tā ba.",
+              vi: "Giám đốc Vương đang họp đấy, cuộc họp 11 giờ mới kết thúc, chiều bạn hẵng báo cho anh ấy nhé."
+            }
+          ],
+          comprehension: [
+            {
+              q: "1. Tại sao Lý Na không muốn đi xe buýt ra sân bay?",
+              options: [
+                "Vì xe buýt đắt hơn tàu điện ngầm.",
+                "Vì công ty cách sân bay rất xa, đi xe buýt mất hơn 1 tiếng đồng hồ.",
+                "Vì gần công ty không có bến xe buýt."
+              ],
+              correct: 1,
+              explain: "Trong câu thoại 4: “我们公司离机场很远，坐公共汽车要一个多小时呢。”"
+            },
+            {
+              q: "2. Cuối cùng hai người quyết định chọn phương tiện nào để ra sân bay?",
+              options: [
+                "Đi tàu điện ngầm (地铁) vì vừa nhanh hơn xe buýt nhiều vừa rẻ.",
+                "Đi taxi (出租车) vì tiện lợi.",
+                "Đi xe buýt (公共汽车) lúc 7 giờ sáng."
+              ],
+              correct: 0,
+              explain: "Trong câu thoại 6 & 7: Lý Na đề xuất đi tàu điện ngầm (“坐地铁比坐公共汽车快得多，而且很便宜”) và Tiểu Vương đồng ý."
+            },
+            {
+              q: "3. Tại sao Tiểu Vương chưa thể báo ngay cho Giám đốc Vương?",
+              options: [
+                "Vì Giám đốc Vương đã ra sân bay trước rồi.",
+                "Vì Giám đốc Vương đang họp, 11 giờ cuộc họp mới kết thúc.",
+                "Vì Giám đốc Vương đang nói chuyện với nhân viên phục vụ."
+              ],
+              correct: 1,
+              explain: "Trong câu thoại 8: “王经理正在开会呢，会议十一点才结束，你下午再告诉他吧。”"
+            }
+          ]
+        }
+      }
+    ];
+
+    /********************************************************************
+     * TRẠNG THÁI ỨNG DỤNG & QUẢN LÝ BÀI HỌC
+     ********************************************************************/
+    const STORAGE_KEY_LESSONS = "hsk2_super_chinese_custom_lessons_v1";
+    let allLessons = [...LESSONS_DATA];
+    let currentLesson = allLessons[0];
+
+    // Trạng thái người dùng làm bài
+    let part1State = {}; // { [qId]: { selectedIndices: [], status: null | 'correct' | 'incorrect', showAnswer: false } }
+    let part2State = {}; // { [qId]: { text: '', status: null | 'correct' | 'partial' | 'incorrect', showAnswer: false, showHint: false } }
+    let part3CompState = {}; // { [idx]: selectedOptionIndex }
+    let isGlobalPinyinVisible = true;
+    let isDialoguePlaying = false;
+    let dialoguePlayCancel = false;
+
+    // Load custom lessons from localStorage if any
+    function loadSavedLessons() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY_LESSONS);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            parsed.forEach(item => {
+              if (item && item.id && !allLessons.some(l => l.id === item.id)) {
+                allLessons.unshift(item);
+              }
+            });
+          }
+        }
+      } catch (e) {
+        console.warn("Không thể đọc localStorage:", e);
+      }
+    }
+
+    /********************************************************************
+     * WEB SPEECH API (PHÁT ÂM TIẾNG TRUNG CHUẨN)
+     ********************************************************************/
+    let zhVoices = [];
+
+    function populateVoices() {
+      if (!("speechSynthesis" in window)) return;
+      const voices = window.speechSynthesis.getVoices();
+      zhVoices = voices.filter(v =>
+        /zh|cmn|chinese|普通话|国语/i.test(v.lang) || /zh|chinese|xiaoxiao|yunxi|huihui|kangkang|yaoyao|ting-ting/i.test(v.name)
+      );
+
+      const voiceSelect = document.getElementById("voiceSelect");
+      const prevVal = voiceSelect.value;
+      voiceSelect.innerHTML = "";
+
+      if (zhVoices.length === 0) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "Giọng zh-CN mặc định";
+        voiceSelect.appendChild(opt);
+      } else {
+        zhVoices.forEach((v, idx) => {
+          const opt = document.createElement("option");
+          opt.value = idx;
+          opt.textContent = `${v.name} (${v.lang})`;
+          voiceSelect.appendChild(opt);
+        });
+        if (prevVal && zhVoices[prevVal]) {
+          voiceSelect.value = prevVal;
+        }
+      }
+    }
+
+    if ("speechSynthesis" in window) {
+      populateVoices();
+      window.speechSynthesis.onvoiceschanged = populateVoices;
+    }
+
+    function speakChinese(text, onEndCallback = null, btnEl = null) {
+      if (!("speechSynthesis" in window)) {
+        showToast("Trình duyệt của bạn không hỗ trợ Web Speech API.");
+        if (onEndCallback) onEndCallback();
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+      document.querySelectorAll(".btn-audio.speaking").forEach(b => b.classList.remove("speaking"));
+
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "zh-CN";
+      const rate = parseFloat(document.getElementById("speechRateSelect").value) || 1.0;
+      utter.rate = rate;
+
+      const voiceIdx = document.getElementById("voiceSelect").value;
+      if (voiceIdx !== "" && zhVoices[voiceIdx]) {
+        utter.voice = zhVoices[voiceIdx];
+        utter.lang = zhVoices[voiceIdx].lang;
+      }
+
+      if (btnEl) btnEl.classList.add("speaking");
+
+      utter.onend = () => {
+        if (btnEl) btnEl.classList.remove("speaking");
+        if (onEndCallback) onEndCallback();
+      };
+
+      utter.onerror = () => {
+        if (btnEl) btnEl.classList.remove("speaking");
+        if (onEndCallback) onEndCallback();
+      };
+
+      window.speechSynthesis.speak(utter);
+    }
+
+    /********************************************************************
+     * TIỆN ÍCH CHUẨN HÓA CHUỖI TIẾNG TRUNG KHI CHẤM ĐÁP ÁN
+     ********************************************************************/
+    function normalizeZh(str) {
+      if (!str) return "";
+      return str
+        .replace(/[\s\u3000，。！？、；：“”‘’（）().,!?;:'"\-]/g, "")
+        .trim();
+    }
+
+    function calculateCharSimilarity(userNorm, targetNorm) {
+      if (!userNorm || !targetNorm) return 0;
+      if (userNorm === targetNorm) return 1;
+      const targetChars = [...targetNorm];
+      let matched = 0;
+      const used = new Array(targetChars.length).fill(false);
+      for (const ch of userNorm) {
+        const idx = targetChars.findIndex((t, i) => !used[i] && t === ch);
+        if (idx !== -1) {
+          used[idx] = true;
+          matched++;
+        }
+      }
+      return matched / Math.max(userNorm.length, targetChars.length);
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2400);
+    }
+
+    /********************************************************************
+     * KHỞI TẠO & RENDER GIAO DIỆN BÀI HỌC
+     ********************************************************************/
+    function initLessonSelect() {
+      const sel = document.getElementById("lessonSelect");
+      sel.innerHTML = "";
+      allLessons.forEach((lesson, idx) => {
+        const opt = document.createElement("option");
+        opt.value = idx;
+        opt.textContent = lesson.title;
+        sel.appendChild(opt);
+      });
+      sel.onchange = () => {
+        const idx = parseInt(sel.value, 10) || 0;
+        loadLesson(allLessons[idx]);
+      };
+    }
+
+    function loadLesson(lesson) {
+      currentLesson = lesson;
+      document.getElementById("lessonTitle").textContent = lesson.title;
+      document.getElementById("lessonMeta").textContent =
+        `Cập nhật: ${lesson.date || "Hôm nay"} • ${lesson.vocab.length} từ vựng trọng tâm • 30 câu bài tập + 1 hội thoại`;
+      document.getElementById("vocabCountBadge").textContent = `${lesson.vocab.length} từ`;
+
+      // Reset states
+      part1State = {};
+      lesson.part1_scramble.forEach(q => {
+        part1State[q.id] = {
+          selectedIndices: [],
+          status: null,
+          showAnswer: false,
+          forcePinyin: false
+        };
+      });
+
+      part2State = {};
+      lesson.part2_translate.forEach(q => {
+        part2State[q.id] = {
+          text: "",
+          status: null,
+          showAnswer: false,
+          showHint: false,
+          forcePinyin: false
+        };
+      });
+
+      part3CompState = {};
+
+      renderPart1();
+      renderPart2();
+      renderPart3();
+      renderQuizletAndVocab();
+      updateScores();
+    }
+
+    function updateScores() {
+      const p1Total = currentLesson.part1_scramble.length;
+      const p1Correct = Object.values(part1State).filter(s => s.status === "correct").length;
+      document.getElementById("scorePart1").textContent = `${p1Correct} / ${p1Total}`;
+
+      const p2Total = currentLesson.part2_translate.length;
+      const p2Correct = Object.values(part2State).filter(s => s.status === "correct").length;
+      document.getElementById("scorePart2").textContent = `${p2Correct} / ${p2Total}`;
+
+      const p3Total = (currentLesson.part3_dialogue.comprehension || []).length;
+      let p3Correct = 0;
+      (currentLesson.part3_dialogue.comprehension || []).forEach((item, idx) => {
+        if (part3CompState[idx] === item.correct) p3Correct++;
+      });
+      document.getElementById("scorePart3").textContent = `${p3Correct} / ${p3Total}`;
+    }
+
+    /********************************************************************
+     * RENDER DẠNG 1: 15 CÂU SẮP XẾP TỪ XÁO TRỘN
+     ********************************************************************/
+    function renderPart1() {
+      const container = document.getElementById("part1List");
+      container.innerHTML = "";
+
+      currentLesson.part1_scramble.forEach((q, idx) => {
+        const st = part1State[q.id];
+        const card = document.createElement("div");
+        card.className = `q-card ${st.status || ""} ${st.forcePinyin ? "force-show-pinyin" : ""}`;
+        card.id = `p1-card-${q.id}`;
+
+        // Build selected word tiles
+        const assembledWords = st.selectedIndices.map(wIdx => q.words[wIdx]);
+        const assembledHanzi = assembledWords.map(w => w.hanzi).join("");
+
+        card.innerHTML = `
+          <div class="q-header">
+            <div class="q-meta">
+              <span class="q-num">Câu ${idx + 1}</span>
+              <span class="context-badge">Sắp xếp cấu trúc câu</span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-outline btn-sm" data-action="toggle-card-pinyin" data-id="${q.id}" title="Ẩn/Hiện Pinyin riêng câu này">
+                👁️ Pinyin
+              </button>
+              <button class="btn btn-audio btn-sm" data-action="speak-p1" data-id="${q.id}">
+                🔊 Nghe câu chuẩn
+              </button>
+            </div>
+          </div>
+
+          <div class="q-prompt">🇻🇳 Nghĩa câu đích: “${q.vi}”</div>
+
+          <!-- Khu vực câu đã ghép -->
+          <div class="answer-dropzone ${assembledWords.length > 0 ? "has-items" : ""}" data-id="${q.id}">
+            ${
+              assembledWords.length === 0
+                ? `<span class="dropzone-placeholder">Bấm vào các thẻ từ bên dưới theo đúng thứ tự ngữ pháp tiếng Trung...</span>`
+                : assembledWords
+                    .map(
+                      (w, posIdx) => `
+                  <div class="word-tile in-answer" data-action="remove-word" data-id="${q.id}" data-pos="${posIdx}" title="Bấm để bỏ từ này ra">
+                    <span class="tile-pinyin">${w.pinyin}</span>
+                    <span class="tile-hanzi zh-text">${w.hanzi}</span>
+                  </div>
+                `
+                    )
+                    .join("")
+            }
+          </div>
+
+          <!-- Ngân hàng từ xáo trộn -->
+          <div class="word-bank">
+            ${q.words
+              .map((w, wIdx) => {
+                const isUsed = st.selectedIndices.includes(wIdx);
+                return `
+                  <div class="word-tile ${isUsed ? "used" : ""}" data-action="add-word" data-id="${q.id}" data-widx="${wIdx}">
+                    <span class="tile-pinyin">${w.pinyin}</span>
+                    <span class="tile-hanzi zh-text">${w.hanzi}</span>
+                  </div>
+                `;
+              })
+              .join("")}
+          </div>
+
+          <div class="q-actions">
+            <button class="btn btn-primary btn-sm" data-action="check-p1" data-id="${q.id}">✅ Kiểm tra đáp án</button>
+            <button class="btn btn-outline btn-sm" data-action="reset-p1" data-id="${q.id}">🔄 Xóa ghép lại</button>
+            <button class="btn btn-outline btn-sm" data-action="show-p1" data-id="${q.id}">💡 Xem đáp án</button>
+          </div>
+
+          <!-- Hộp kết quả & giải thích -->
+          <div class="feedback-box ${st.status || st.showAnswer ? "visible" : ""}">
+            ${
+              st.status === "correct"
+                ? `<div class="feedback-status ok">🎉 Chính xác! Bạn đã nắm vững cấu trúc câu này.</div>`
+                : st.status === "incorrect"
+                ? `<div class="feedback-status err">❌ Chưa đúng trật tự từ. Câu bạn ghép: <strong class="zh-text">${assembledHanzi || "(Chưa ghép)"}</strong></div>`
+                : `<div class="feedback-status warn">💡 Đáp án chuẩn:</div>`
+            }
+            <div class="feedback-answer-zh zh-text">${q.answer}</div>
+            <div class="feedback-answer-py pinyin-text">${q.pinyin}</div>
+            <div class="feedback-note">📌 <strong>Ngữ pháp:</strong> ${q.note}</div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function checkSinglePart1(qId) {
+      const q = currentLesson.part1_scramble.find(item => item.id === qId);
+      if (!q) return;
+      const st = part1State[qId];
+      const userSentence = st.selectedIndices.map(i => q.words[i].hanzi).join("");
+      const normUser = normalizeZh(userSentence);
+
+      const validTargets = [q.answer, ...(q.accepted || [])].map(normalizeZh);
+      if (normUser && validTargets.includes(normUser)) {
+        st.status = "correct";
+      } else {
+        st.status = "incorrect";
+      }
+      st.showAnswer = true;
+    }
+
+    // Event Delegation cho Dạng 1
+    document.getElementById("part1List").addEventListener("click", e => {
+      const target = e.target.closest("[data-action]");
+      if (!target) return;
+
+      const action = target.dataset.action;
+      const qId = parseInt(target.dataset.id, 10);
+      const q = currentLesson.part1_scramble.find(item => item.id === qId);
+      if (!q) return;
+      const st = part1State[qId];
+
+      if (action === "add-word") {
+        const wIdx = parseInt(target.dataset.widx, 10);
+        if (!st.selectedIndices.includes(wIdx)) {
+          st.selectedIndices.push(wIdx);
+          if (document.getElementById("chkSpeakOnClick").checked) {
+            speakChinese(q.words[wIdx].hanzi);
+          }
+          renderPart1();
+        }
+      } else if (action === "remove-word") {
+        const pos = parseInt(target.dataset.pos, 10);
+        st.selectedIndices.splice(pos, 1);
+        renderPart1();
+      } else if (action === "check-p1") {
+        checkSinglePart1(qId);
+        renderPart1();
+        updateScores();
+      } else if (action === "reset-p1") {
+        st.selectedIndices = [];
+        st.status = null;
+        st.showAnswer = false;
+        renderPart1();
+        updateScores();
+      } else if (action === "show-p1") {
+        st.showAnswer = !st.showAnswer;
+        renderPart1();
+      } else if (action === "speak-p1") {
+        speakChinese(q.answer, null, target);
+      } else if (action === "toggle-card-pinyin") {
+        st.forcePinyin = !st.forcePinyin;
+        renderPart1();
+      }
+    });
+
+    document.getElementById("btnCheckAllPart1").addEventListener("click", () => {
+      currentLesson.part1_scramble.forEach(q => checkSinglePart1(q.id));
+      renderPart1();
+      updateScores();
+      showToast("Đã chấm điểm toàn bộ 15 câu Dạng 1!");
+    });
+
+    document.getElementById("btnResetAllPart1").addEventListener("click", () => {
+      currentLesson.part1_scramble.forEach(q => {
+        part1State[q.id] = { selectedIndices: [], status: null, showAnswer: false, forcePinyin: false };
+      });
+      renderPart1();
+      updateScores();
+      showToast("Đã đặt lại Dạng 1.");
+    });
+
+    /********************************************************************
+     * RENDER DẠNG 2: 15 CÂU DỊCH NGƯỢC VIỆT -> TRUNG
+     ********************************************************************/
+    function renderPart2() {
+      const container = document.getElementById("part2List");
+      container.innerHTML = "";
+
+      currentLesson.part2_translate.forEach((q, idx) => {
+        const st = part2State[q.id];
+        const card = document.createElement("div");
+        card.className = `q-card ${st.status || ""} ${st.forcePinyin ? "force-show-pinyin" : ""}`;
+
+        card.innerHTML = `
+          <div class="q-header">
+            <div class="q-meta">
+              <span class="q-num">Câu ${idx + 1}</span>
+              <span class="context-badge ${q.contextType === "work" ? "work" : "life"}">
+                ${q.contextType === "work" ? "🏢 " : "🏠 "}${q.context}
+              </span>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-outline btn-sm" data-action="toggle-p2-pinyin" data-id="${q.id}">
+                👁️ Pinyin
+              </button>
+              <button class="btn btn-audio btn-sm" data-action="speak-p2" data-id="${q.id}">
+                🔊 Nghe câu chuẩn
+              </button>
+            </div>
+          </div>
+
+          <div class="q-prompt">🇻🇳 Dịch sang tiếng Trung: “${q.vi}”</div>
+
+          <div class="hint-box ${st.showHint ? "visible" : ""}" id="p2-hint-${q.id}">
+            💡 ${q.hint}
+          </div>
+
+          <div class="translate-input-row">
+            <input
+              type="text"
+              class="translate-input zh-text"
+              data-id="${q.id}"
+              placeholder="Gõ câu chữ Hán của bạn vào đây (hoặc bấm các từ gợi ý bên dưới)..."
+              value="${st.text.replace(/"/g, "&quot;")}"
+            />
+          </div>
+
+          <!-- Thẻ từ hỗ trợ bấm nhanh -->
+          <div class="chip-helper-bar">
+            <span class="chip-label">⚡ Chèn nhanh từ vựng:</span>
+            ${(q.keywords || [])
+              .map(
+                kw =>
+                  `<button type="button" class="helper-chip zh-text" data-action="insert-chip" data-id="${q.id}" data-kw="${kw}">${kw}</button>`
+              )
+              .join("")}
+          </div>
+
+          <div class="q-actions">
+            <button class="btn btn-primary btn-sm" data-action="check-p2" data-id="${q.id}">✅ Kiểm tra đáp án</button>
+            <button class="btn btn-outline btn-sm" data-action="hint-p2" data-id="${q.id}">💡 Gợi ý từ vựng</button>
+            <button class="btn btn-outline btn-sm" data-action="show-p2" data-id="${q.id}">👁️ Xem đáp án mẫu</button>
+            <button class="btn btn-outline btn-sm" data-action="clear-p2" data-id="${q.id}">🔄 Xóa</button>
+          </div>
+
+          <div class="feedback-box ${st.status || st.showAnswer ? "visible" : ""}">
+            ${
+              st.status === "correct"
+                ? `<div class="feedback-status ok">🎉 Chính xác tuyệt đối! Câu dịch rất tự nhiên.</div>`
+                : st.status === "partial"
+                ? `<div class="feedback-status warn">👍 Khá sát nghĩa! Bạn đã dùng đúng hầu hết từ khóa. Hãy đối chiếu với câu chuẩn bên dưới:</div>`
+                : st.status === "incorrect"
+                ? `<div class="feedback-status err">❌ Chưa khớp với đáp án mẫu. Hãy xem cấu trúc gợi ý bên dưới nhé:</div>`
+                : `<div class="feedback-status warn">📖 Đáp án tham khảo:</div>`
+            }
+            <div class="feedback-answer-zh zh-text">${q.answer}</div>
+            <div class="feedback-answer-py pinyin-text">${q.pinyin}</div>
+            <div class="feedback-note">📌 <strong>Lưu ý:</strong> ${q.note}</div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+
+      // Bind input typing
+      container.querySelectorAll(".translate-input").forEach(inp => {
+        inp.addEventListener("input", e => {
+          const qId = parseInt(e.target.dataset.id, 10);
+          if (part2State[qId]) {
+            part2State[qId].text = e.target.value;
+          }
+        });
+        inp.addEventListener("keydown", e => {
+          if (e.key === "Enter") {
+            const qId = parseInt(e.target.dataset.id, 10);
+            checkSinglePart2(qId);
+            renderPart2();
+            updateScores();
+          }
+        });
+      });
+    }
+
+    function checkSinglePart2(qId) {
+      const q = currentLesson.part2_translate.find(item => item.id === qId);
+      if (!q) return;
+      const st = part2State[qId];
+      const normUser = normalizeZh(st.text);
+
+      if (!normUser) {
+        st.status = "incorrect";
+        st.showAnswer = true;
+        return;
+      }
+
+      const validTargets = [q.answer, ...(q.accepted || [])].map(normalizeZh);
+      if (validTargets.includes(normUser)) {
+        st.status = "correct";
+      } else {
+        const bestSim = Math.max(...validTargets.map(t => calculateCharSimilarity(normUser, t)));
+        if (bestSim >= 0.72) {
+          st.status = "partial";
+        } else {
+          st.status = "incorrect";
+        }
+      }
+      st.showAnswer = true;
+    }
+
+    document.getElementById("part2List").addEventListener("click", e => {
+      const target = e.target.closest("[data-action]");
+      if (!target) return;
+
+      const action = target.dataset.action;
+      const qId = parseInt(target.dataset.id, 10);
+      const q = currentLesson.part2_translate.find(item => item.id === qId);
+      if (!q) return;
+      const st = part2State[qId];
+
+      if (action === "insert-chip") {
+        const kw = target.dataset.kw;
+        st.text = (st.text || "") + kw;
+        speakChinese(kw);
+        renderPart2();
+      } else if (action === "check-p2") {
+        checkSinglePart2(qId);
+        renderPart2();
+        updateScores();
+      } else if (action === "hint-p2") {
+        st.showHint = !st.showHint;
+        renderPart2();
+      } else if (action === "show-p2") {
+        st.showAnswer = !st.showAnswer;
+        renderPart2();
+      } else if (action === "clear-p2") {
+        st.text = "";
+        st.status = null;
+        st.showAnswer = false;
+        renderPart2();
+        updateScores();
+      } else if (action === "speak-p2") {
+        speakChinese(q.answer, null, target);
+      } else if (action === "toggle-p2-pinyin") {
+        st.forcePinyin = !st.forcePinyin;
+        renderPart2();
+      }
+    });
+
+    document.getElementById("btnCheckAllPart2").addEventListener("click", () => {
+      currentLesson.part2_translate.forEach(q => checkSinglePart2(q.id));
+      renderPart2();
+      updateScores();
+      showToast("Đã kiểm tra tất cả 15 câu dịch Dạng 2!");
+    });
+
+    document.getElementById("btnShowAllPart2").addEventListener("click", () => {
+      currentLesson.part2_translate.forEach(q => {
+        part2State[q.id].showAnswer = true;
+      });
+      renderPart2();
+    });
+
+    document.getElementById("btnResetAllPart2").addEventListener("click", () => {
+      currentLesson.part2_translate.forEach(q => {
+        part2State[q.id] = { text: "", status: null, showAnswer: false, showHint: false, forcePinyin: false };
+      });
+      renderPart2();
+      updateScores();
+      showToast("Đã đặt lại Dạng 2.");
+    });
+
+    /********************************************************************
+     * RENDER DẠNG 3: ĐOẠN HỘI THOẠI 6-8 CÂU (CÓ BẢN ẨN PINYIN)
+     ********************************************************************/
+    function highlightLessonVocab(hanziText) {
+      let result = hanziText;
+      const sortedVocab = [...currentLesson.vocab].sort((a, b) => b.hanzi.length - a.hanzi.length);
+      sortedVocab.forEach(v => {
+        if (!v.hanzi) return;
+        const escaped = v.hanzi.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const reg = new RegExp(escaped, "g");
+        result = result.replace(
+          reg,
+          `<span class="vocab-highlight" title="${v.hanzi} (${v.pinyin}): ${v.meaning}">${v.hanzi}</span>`
+        );
+      });
+      return result;
+    }
+
+    function renderPart3() {
+      const dlg = currentLesson.part3_dialogue;
+      document.getElementById("dialogueScenario").innerHTML = `<strong>🎬 Bối cảnh hội thoại:</strong> ${dlg.scenario}`;
+
+      const listEl = document.getElementById("dialogueList");
+      listEl.innerHTML = "";
+
+      dlg.lines.forEach((line, idx) => {
+        const isA = line.speaker === "A";
+        const item = document.createElement("div");
+        item.className = `dialogue-item ${isA ? "speaker-a" : "speaker-b"}`;
+        item.id = `dlg-line-${idx}`;
+
+        item.innerHTML = `
+          <div class="speaker-avatar">${line.speaker}</div>
+          <div class="dialogue-content">
+            <div class="dialogue-top">
+              <span class="speaker-name">${line.name} • Câu #${idx + 1}</span>
+              <div class="dialogue-line-tools">
+                <button class="btn btn-outline btn-sm" data-action="line-pinyin" data-idx="${idx}" title="Ẩn/Hiện Pinyin riêng câu thoại này">
+                  👁️ Pinyin
+                </button>
+                <button class="btn btn-outline btn-sm" data-action="line-vi" data-idx="${idx}" title="Ẩn/Hiện nghĩa tiếng Việt riêng câu thoại này">
+                  🇻🇳 Nghĩa
+                </button>
+                <button class="btn btn-audio btn-sm" data-action="line-speak" data-idx="${idx}">
+                  🔊 Nghe câu này
+                </button>
+              </div>
+            </div>
+            <div class="dialogue-pinyin pinyin-text">${line.pinyin}</div>
+            <div class="dialogue-hanzi zh-text" data-action="reveal-line" data-idx="${idx}">${highlightLessonVocab(line.hanzi)}</div>
+            <div class="dialogue-vi vi-text">🇻🇳 ${line.vi}</div>
+          </div>
+        `;
+        listEl.appendChild(item);
+      });
+
+      // Render comprehension questions
+      const compEl = document.getElementById("compList");
+      compEl.innerHTML = "";
+      (dlg.comprehension || []).forEach((cq, qIdx) => {
+        const qDiv = document.createElement("div");
+        qDiv.className = "comp-q-item";
+        qDiv.innerHTML = `
+          <div style="font-weight:600; font-size:0.95rem;">${cq.q}</div>
+          <div class="comp-options">
+            ${cq.options
+              .map(
+                (opt, oIdx) => `
+              <label class="comp-option-label">
+                <input type="radio" name="comp-q-${qIdx}" value="${oIdx}" ${
+                  part3CompState[qIdx] === oIdx ? "checked" : ""
+                } />
+                <span>${opt}</span>
+              </label>
+            `
+              )
+              .join("")}
+          </div>
+          <div class="feedback-box" id="comp-fb-${qIdx}"></div>
+        `;
+        compEl.appendChild(qDiv);
+      });
+
+      compEl.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener("change", e => {
+          const qIdx = parseInt(e.target.name.replace("comp-q-", ""), 10);
+          part3CompState[qIdx] = parseInt(e.target.value, 10);
+        });
+      });
+    }
+
+    // Event delegation cho Dạng 3
+    document.getElementById("dialogueList").addEventListener("click", e => {
+      const btn = e.target.closest("[data-action]");
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const idx = parseInt(btn.dataset.idx, 10);
+      const line = currentLesson.part3_dialogue.lines[idx];
+      const itemEl = document.getElementById(`dlg-line-${idx}`);
+      if (!line || !itemEl) return;
+
+      if (action === "line-speak") {
+        speakChinese(line.hanzi, null, btn);
+      } else if (action === "line-pinyin") {
+        itemEl.classList.toggle("force-show-pinyin");
+      } else if (action === "line-vi") {
+        itemEl.classList.toggle("force-show-vi");
+      } else if (action === "reveal-line") {
+        itemEl.classList.toggle("reveal-hanzi");
+      }
+    });
+
+    // Nút Ẩn/Hiện Pinyin của Dạng 3
+    document.getElementById("btnToggleDialoguePinyin").addEventListener("click", e => {
+      const container = document.getElementById("dialogueContainer");
+      const isHidden = container.classList.toggle("dialogue-hide-pinyin");
+      const btn = e.currentTarget;
+      if (isHidden) {
+        btn.className = "btn btn-pinyin-hidden";
+        btn.textContent = "🙈 Pinyin Hội thoại: Đang Ẩn";
+      } else {
+        btn.className = "btn btn-pinyin-active";
+        btn.textContent = "👁️ Pinyin Hội thoại: Đang Hiện";
+      }
+    });
+
+    // Nút Ẩn/Hiện Nghĩa Việt của Dạng 3
+    document.getElementById("btnToggleDialogueVi").addEventListener("click", e => {
+      const container = document.getElementById("dialogueContainer");
+      const isHidden = container.classList.toggle("dialogue-hide-vi");
+      e.currentTarget.textContent = isHidden ? "🇻🇳 Nghĩa Việt: Đang Ẩn" : "🇻🇳 Nghĩa Việt: Đang Hiện";
+    });
+
+    // Nút Chế độ Nghe Phản Xạ (Làm mờ chữ Hán)
+    document.getElementById("btnToggleDialogueBlur").addEventListener("click", e => {
+      const container = document.getElementById("dialogueContainer");
+      const isBlurred = container.classList.toggle("dialogue-blur-hanzi");
+      e.currentTarget.textContent = isBlurred
+        ? "👁️ Hiện lại mặt chữ Hán"
+        : "🎧 Chế độ Nghe Phản Xạ (Che chữ)";
+    });
+
+    // Phát toàn bộ hội thoại liên tiếp
+    document.getElementById("btnPlayFullDialogue").addEventListener("click", e => {
+      const btn = e.currentTarget;
+      const lines = currentLesson.part3_dialogue.lines;
+
+      if (isDialoguePlaying) {
+        dialoguePlayCancel = true;
+        isDialoguePlaying = false;
+        window.speechSynthesis.cancel();
+        btn.textContent = "▶️ Phát toàn bộ hội thoại";
+        document.querySelectorAll(".dialogue-item.playing-line").forEach(el => el.classList.remove("playing-line"));
+        return;
+      }
+
+      isDialoguePlaying = true;
+      dialoguePlayCancel = false;
+      btn.textContent = "⏹️ Dừng phát hội thoại";
+
+      let currentIdx = 0;
+
+      function playNextLine() {
+        document.querySelectorAll(".dialogue-item.playing-line").forEach(el => el.classList.remove("playing-line"));
+        if (dialoguePlayCancel || currentIdx >= lines.length) {
+          isDialoguePlaying = false;
+          btn.textContent = "▶️ Phát toàn bộ hội thoại";
+          return;
+        }
+        const lineEl = document.getElementById(`dlg-line-${currentIdx}`);
+        if (lineEl) {
+          lineEl.classList.add("playing-line");
+          lineEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+        const text = lines[currentIdx].hanzi;
+        currentIdx++;
+        speakChinese(text, () => {
+          if (!dialoguePlayCancel) {
+            setTimeout(playNextLine, 450);
+          }
+        });
+      }
+
+      playNextLine();
+    });
+
+    // Kiểm tra đáp án đọc hiểu Dạng 3
+    document.getElementById("btnCheckPart3").addEventListener("click", () => {
+      const comp = currentLesson.part3_dialogue.comprehension || [];
+      comp.forEach((item, idx) => {
+        const fb = document.getElementById(`comp-fb-${idx}`);
+        const userAns = part3CompState[idx];
+        fb.classList.add("visible");
+        if (userAns === item.correct) {
+          fb.innerHTML = `<div class="feedback-status ok">🎉 Chính xác! ${item.explain}</div>`;
+        } else {
+          fb.innerHTML = `<div class="feedback-status err">❌ Chưa đúng. Đáp án đúng là: <strong>${
+            item.options[item.correct]
+          }</strong><br/><span style="font-weight:400; font-size:0.84rem;">${item.explain}</span></div>`;
+        }
+      });
+      updateScores();
+      showToast("Đã kiểm tra đáp án Đọc hiểu hội thoại!");
+    });
+
+    /********************************************************************
+     * RENDER TAB 4: BẢNG TỪ VỰNG & XUẤT QUIZLET (CHỮ HÁN + TAB + (PINYIN) NGHĨA)
+     ********************************************************************/
+    function renderQuizletAndVocab() {
+      const tbody = document.getElementById("vocabTableBody");
+      tbody.innerHTML = "";
+
+      const quizletLines = [];
+
+      currentLesson.vocab.forEach((v, idx) => {
+        // Định dạng chuẩn yêu cầu: Chữ Hán + Tab + (Pinyin) Nghĩa tiếng Việt
+        quizletLines.push(`${v.hanzi}\t(${v.pinyin}) ${v.meaning}`);
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${idx + 1}</td>
+          <td class="vocab-hanzi-cell zh-text">${v.hanzi}</td>
+          <td class="pinyin-text" style="color:var(--pinyin-color); font-weight:600;">${v.pinyin}</td>
+          <td>${v.meaning} ${v.pos ? `<span style="color:var(--text-muted); font-size:0.78rem;">(${v.pos})</span>` : ""}</td>
+          <td>
+            <button class="btn btn-audio btn-sm" data-vocab-speak="${v.hanzi}">🔊 Nghe</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("quizletText").value = quizletLines.join("\n");
+
+      // Ngữ pháp
+      const gList = document.getElementById("grammarList");
+      gList.innerHTML = "";
+      (currentLesson.grammarNotes || []).forEach(g => {
+        const div = document.createElement("div");
+        div.className = "grammar-item";
+        div.innerHTML = `
+          <div class="g-pattern">${g.pattern}</div>
+          <div class="g-meaning">${g.meaning}</div>
+          <div class="g-example zh-text">VD: ${g.example}</div>
+        `;
+        gList.appendChild(div);
+      });
+    }
+
+    document.getElementById("vocabTableBody").addEventListener("click", e => {
+      const btn = e.target.closest("[data-vocab-speak]");
+      if (!btn) return;
+      speakChinese(btn.dataset.vocabSpeak, null, btn);
+    });
+
+    document.getElementById("btnSpeakAllVocab").addEventListener("click", e => {
+      const btn = e.currentTarget;
+      const words = currentLesson.vocab.map(v => v.hanzi).join(" ， ");
+      speakChinese(words, null, btn);
+    });
+
+    document.getElementById("btnCopyQuizlet").addEventListener("click", async () => {
+      const text = document.getElementById("quizletText").value;
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("✅ Đã copy định dạng chuẩn Quizlet (Chữ Hán + Tab + (Pinyin) Nghĩa)!");
+      } catch (err) {
+        const ta = document.getElementById("quizletText");
+        ta.select();
+        document.execCommand("copy");
+        showToast("✅ Đã copy vào bộ nhớ tạm!");
+      }
+    });
+
+    /********************************************************************
+     * GLOBAL PINYIN TOGGLE & NAVIGATION TABS & IMPORT MODAL
+     ********************************************************************/
+    function toggleGlobalPinyin() {
+      isGlobalPinyinVisible = !isGlobalPinyinVisible;
+      document.body.classList.toggle("hide-pinyin", !isGlobalPinyinVisible);
+      const btn = document.getElementById("btnGlobalPinyin");
+      if (isGlobalPinyinVisible) {
+        btn.className = "btn btn-pinyin-active";
+        btn.textContent = "👁️ Pinyin: Đang Hiện";
+      } else {
+        btn.className = "btn btn-pinyin-hidden";
+        btn.textContent = "🙈 Pinyin: Đang Ẩn";
+      }
+    }
+
+    document.getElementById("btnGlobalPinyin").addEventListener("click", toggleGlobalPinyin);
+
+    window.addEventListener("keydown", e => {
+      if (e.altKey && (e.key === "p" || e.key === "P")) {
+        e.preventDefault();
+        toggleGlobalPinyin();
+      }
+    });
+
+    // Chuyển tab
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        const tabId = btn.dataset.tab;
+        document.getElementById(tabId).classList.add("active");
+      });
+    });
+
+    // Modal nhập JSON bài học mới
+    const importModal = document.getElementById("importModal");
+    document.getElementById("btnOpenImportModal").addEventListener("click", () => {
+      importModal.classList.add("open");
+    });
+    document.getElementById("btnCloseImportModal").addEventListener("click", () => {
+      importModal.classList.remove("open");
+    });
+    document.getElementById("btnConfirmImport").addEventListener("click", () => {
+      const raw = document.getElementById("importJsonTextarea").value.trim();
+      if (!raw) {
+        showToast("Vui lòng dán dữ liệu JSON bài học!");
+        return;
+      }
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed.title || !Array.isArray(parsed.vocab)) {
+          throw new Error("JSON thiếu trường title hoặc vocab.");
+        }
+        parsed.id = parsed.id || "lesson-" + Date.now();
+        allLessons.unshift(parsed);
+
+        // Save to localStorage
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY_LESSONS) || "[]");
+        saved.unshift(parsed);
+        localStorage.setItem(STORAGE_KEY_LESSONS, JSON.stringify(saved));
+
+        initLessonSelect();
+        loadLesson(parsed);
+        importModal.classList.remove("open");
+        document.getElementById("importJsonTextarea").value = "";
+        showToast("🎉 Đã nạp bài học mới thành công!");
+      } catch (err) {
+        alert("Lỗi định dạng JSON: " + err.message);
+      }
+    });
+
+    // Khởi chạy ứng dụng
+    loadSavedLessons();
+    initLessonSelect();
+    loadLesson(allLessons[0]);
+  </script>
+</body>
+</html>
