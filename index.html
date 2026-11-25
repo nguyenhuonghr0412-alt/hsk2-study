@@ -7,6 +7,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="HSK 2 Lab" />
   <meta name="theme-color" content="#4f46e5" />
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="apple-touch-icon" href="./icon.svg" />
   <title>HSK 2 Thực Chiến — Super Chinese Lab</title>
   <style>
     :root {
@@ -1789,11 +1792,22 @@
           <div class="setting-row">
             <div class="setting-label">
               <h4>Nhắc học cố định hàng ngày trên iPhone 17</h4>
-              <p>Tải lịch <code>.ics</code> vào iPhone Calendar để báo chuông mỗi ngày ngay cả khi đóng Safari</p>
+              <p>Tải lịch <code>.ics</code> vào iPhone Calendar để báo chuông mỗi ngày ngay cả khi đóng Safari (0% pin nền)</p>
             </div>
-            <div style="display:flex; gap:6px; align-items:center;">
+            <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
               <input type="time" id="dailyReminderTime" value="20:00" style="padding:5px 8px;" />
-              <button class="btn btn-primary btn-sm" id="btnDownloadIcs">📅 Thêm vào Lịch iPhone</button>
+              <button class="btn btn-primary btn-sm" id="btnDownloadIcs">📅 Nhắc 1 giờ cố định</button>
+            </div>
+          </div>
+
+          <div class="setting-row" style="flex-direction:column; align-items:stretch; background:#f8fafc; padding:12px; border-radius:12px; margin-top:8px; border:1px solid #e2e8f0;">
+            <div class="setting-label" style="margin-bottom:8px;">
+              <h4>📱 Thông báo nổi Từ Vựng không cần mở Web (0% Pin & Bộ nhớ)</h4>
+              <p>Tải gói lịch nhắc từng từ vựng (<code>.ics</code>) để iPhone 17 tự hiện chữ Hán + Pinyin + Nghĩa ngay trên màn hình khóa theo chu kỳ Spaced Repetition mà không cần chạy ngầm Safari:</p>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn btn-success btn-sm" id="btnDownloadVocabIcsPack">📲 Tải Gói Nhắc Từng Từ (iPhone .ics)</button>
+              <button class="btn btn-outline btn-sm" id="btnCopyVocabJsonUrl">🔗 Copy link vocab.json (iPhone Phím tắt)</button>
             </div>
           </div>
 
@@ -3746,6 +3760,78 @@
       showToast("📅 Đã tải lịch .ics! Mở file để thêm vào Lịch iPhone nhắc mỗi ngày.");
     });
 
+    // Tạo gói lịch .ics nhắc từng từ vựng theo chu kỳ (hiện chữ Hán + Pinyin + Nghĩa trên màn hình khóa iPhone)
+    document.getElementById("btnDownloadVocabIcsPack").addEventListener("click", () => {
+      const appUrl = "https://nguyenhuonghr0412-alt.github.io/hsk2-study/";
+      const baseTime = new Date();
+      baseTime.setMinutes(Math.ceil(baseTime.getMinutes() / 20) * 20, 0, 0);
+
+      const events = [];
+      const words = currentLesson.vocab || [];
+      words.forEach((w, idx) => {
+        // Nhắc rải mỗi 20 phút trong ngày hôm nay (hoặc hôm sau nếu muộn)
+        const evDate = new Date(baseTime.getTime() + idx * 20 * 60 * 1000);
+        const y = evDate.getFullYear();
+        const m = String(evDate.getMonth() + 1).padStart(2, "0");
+        const d = String(evDate.getDate()).padStart(2, "0");
+        const hh = String(evDate.getHours()).padStart(2, "0");
+        const mm = String(evDate.getMinutes()).padStart(2, "0");
+        const dt = `${y}${m}${d}T${hh}${mm}00`;
+
+        const dtEndObj = new Date(evDate.getTime() + 5 * 60 * 1000);
+        const dtEnd = `${dtEndObj.getFullYear()}${String(dtEndObj.getMonth() + 1).padStart(2, "0")}${String(dtEndObj.getDate()).padStart(2, "0")}T${String(dtEndObj.getHours()).padStart(2, "0")}${String(dtEndObj.getMinutes()).padStart(2, "0")}00`;
+
+        const summary = `🇨🇳 ${w.hanzi} (${w.pinyin}) — ${w.meaning}`;
+        const desc = `[${w.pos}] ${w.usage || ""}\\nVD: ${w.exampleZh || ""} (${w.exampleVi || ""})\\nMở app: ${appUrl}`;
+
+        events.push(
+          "BEGIN:VEVENT",
+          `UID:hsk2-word-${idx}-${Date.now()}@hsk2lab`,
+          `DTSTAMP:${dt}`,
+          `DTSTART:${dt}`,
+          `DTEND:${dtEnd}`,
+          `SUMMARY:${summary}`,
+          `DESCRIPTION:${desc}`,
+          `URL:${appUrl}`,
+          "BEGIN:VALARM",
+          "TRIGGER:-PT0M",
+          "ACTION:DISPLAY",
+          `DESCRIPTION:${summary}`,
+          "END:VALARM",
+          "END:VEVENT"
+        );
+      });
+
+      const icsPack = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        "PRODID:-//HSK2 Super Chinese SRS Pack//VN",
+        ...events,
+        "END:VCALENDAR"
+      ].join("\r\n");
+
+      const blob = new Blob([icsPack], { type: "text/calendar;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "HSK2_Nhac_Tung_Tu_Vung_20p.ics";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast(`📲 Đã tạo lịch nhắc ${words.length} từ vựng (mỗi 20 phút/từ) cho iPhone!`);
+    });
+
+    document.getElementById("btnCopyVocabJsonUrl").addEventListener("click", async () => {
+      const url = "https://nguyenhuonghr0412-alt.github.io/hsk2-study/vocab.json";
+      try {
+        await navigator.clipboard.writeText(url);
+        showToast("🔗 Đã copy link vocab.json để dùng trong app Phím tắt iPhone!");
+      } catch (e) {
+        showToast(url);
+      }
+    });
+
     /********************************************************************
      * NAVIGATION, PINYIN TOGGLE, LESSON SWITCHER & IMPORT
      ********************************************************************/
@@ -3862,6 +3948,12 @@
     applySavedSettingsToUI();
     initLessonSelect();
     loadLesson(allLessons[0]);
+
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
+    }
   </script>
 </body>
 </html>

@@ -1,0 +1,134 @@
+{
+  "lessonId": "hsk2-superchinese-unit-sample",
+  "lessonTitle": "Bài Mẫu HSK 2: Chuẩn Bị Công Tác & Giao Tiếp Hàng Ngày",
+  "appUrl": "https://nguyenhuonghr0412-alt.github.io/hsk2-study/",
+  "updatedAt": "2026-11-25",
+  "vocab": [
+    {
+      "hanzi": "准备",
+      "pinyin": "zhǔnbèi",
+      "pos": "Động từ",
+      "meaning": "chuẩn bị, dự định",
+      "usage": "准备 + Danh từ / Động từ",
+      "exampleZh": "我已经准备好晚饭了。",
+      "exampleVi": "Tôi đã chuẩn bị xong bữa tối rồi."
+    },
+    {
+      "hanzi": "已经",
+      "pinyin": "yǐjīng",
+      "pos": "Phó từ",
+      "meaning": "đã, rồi",
+      "usage": "已经 + Động từ / Tính từ + 了",
+      "exampleZh": "电影已经开始二十分钟了。",
+      "exampleVi": "Phim đã bắt đầu được 20 phút rồi."
+    },
+    {
+      "hanzi": "服务员",
+      "pinyin": "fúwùyuán",
+      "pos": "Danh từ",
+      "meaning": "nhân viên phục vụ",
+      "usage": "Gọi nhân viên tại nhà hàng, khách sạn",
+      "exampleZh": "服务员，请给我们介绍几个好吃的菜。",
+      "exampleVi": "Phục vụ ơi, xin giới thiệu cho chúng tôi mấy món ngon."
+    },
+    {
+      "hanzi": "便宜",
+      "pinyin": "piányi",
+      "pos": "Tính từ",
+      "meaning": "rẻ",
+      "usage": "很便宜 / A 比 B 便宜",
+      "exampleZh": "这件衣服比那件便宜一点儿。",
+      "exampleVi": "Bộ quần áo này rẻ hơn bộ kia một chút."
+    },
+    {
+      "hanzi": "离",
+      "pinyin": "lí",
+      "pos": "Giới từ",
+      "meaning": "cách (khoảng cách)",
+      "usage": "A + 离 + B + 很近 / 很远",
+      "exampleZh": "我家离机场不太远。",
+      "exampleVi": "Nhà tôi cách sân bay không xa lắm."
+    },
+    {
+      "hanzi": "机场",
+      "pinyin": "jīchǎng",
+      "pos": "Danh từ",
+      "meaning": "sân bay",
+      "usage": "去机场 / 到机场",
+      "exampleZh": "他到了机场就告诉我。",
+      "exampleVi": "Anh ấy đến sân bay liền báo cho tôi."
+    },
+    {
+      "hanzi": "公共汽车",
+      "pinyin": "gōnggòng qìchē",
+      "pos": "Danh từ",
+      "meaning": "xe buýt",
+      "usage": "坐公共汽车 (đi xe buýt)",
+      "exampleZh": "从这儿坐公共汽车到公司要一个小时。",
+      "exampleVi": "Từ đây đi xe buýt đến công ty mất 1 tiếng."
+    },
+    {
+      "hanzi": "小时",
+      "pinyin": "xiǎoshí",
+      "pos": "Danh từ",
+      "meaning": "tiếng, giờ đồng hồ",
+      "usage": "Số lượng + 个 + 小时",
+      "exampleZh": "我昨天看了两个小时中文书。",
+      "exampleVi": "Hôm qua tôi đọc sách tiếng Trung 2 tiếng."
+    },
+    {
+      "hanzi": "正在",
+      "pinyin": "zhèngzài",
+      "pos": "Phó từ",
+      "meaning": "đang",
+      "usage": "正在 + Động từ + 呢",
+      "exampleZh": "他正在给客户打电话呢。",
+      "exampleVi": "Anh ấy đang gọi điện cho khách hàng đấy."
+    },
+    {
+      "hanzi": "告诉",
+      "pinyin": "gàosu",
+      "pos": "Động từ",
+      "meaning": "nói cho biết, báo cho",
+      "usage": "告诉 + Ai + Việc gì",
+      "exampleZh": "请别告诉他这件事。",
+      "exampleVi": "Xin đừng nói cho anh ấy biết chuyện này."
+    },
+    {
+      "hanzi": "介绍",
+      "pinyin": "jièshào",
+      "pos": "Động từ",
+      "meaning": "giới thiệu",
+      "usage": "给 + Ai + 介绍 + Cái gì",
+      "exampleZh": "我给大家介绍一下，这是我们的新同事。",
+      "exampleVi": "Để tôi giới thiệu với mọi người, đây là đồng nghiệp mới."
+    },
+    {
+      "hanzi": "意思",
+      "pinyin": "yìsi",
+      "pos": "Danh từ",
+      "meaning": "ý nghĩa, ý",
+      "usage": "...是什么意思？",
+      "exampleZh": "这个汉字是什么意思？",
+      "exampleVi": "Chữ Hán này có nghĩa là gì?"
+    },
+    {
+      "hanzi": "开始",
+      "pinyin": "kāishǐ",
+      "pos": "Động từ",
+      "meaning": "bắt đầu",
+      "usage": "几点开始 / 已经开始了",
+      "exampleZh": "上午的会议几点开始？",
+      "exampleVi": "Cuộc họp buổi sáng mấy giờ bắt đầu?"
+    },
+    {
+      "hanzi": "还是",
+      "pinyin": "háishi",
+      "pos": "Liên từ",
+      "meaning": "hay là (câu hỏi lựa chọn)",
+      "usage": "A + 还是 + B？",
+      "exampleZh": "我们坐公共汽车还是坐出租车？",
+      "exampleVi": "Chúng ta đi xe buýt hay là đi taxi?"
+    }
+  ]
+}

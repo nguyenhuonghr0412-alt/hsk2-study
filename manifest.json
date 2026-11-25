@@ -1,0 +1,18 @@
+{
+  "name": "HSK 2 Thực Chiến — Super Chinese Lab",
+  "short_name": "HSK 2 Lab",
+  "description": "Học từ vựng, cấu trúc, luyện câu & nhắc nhở Spaced Repetition HSK 2 siêu nhẹ.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f5fb",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
