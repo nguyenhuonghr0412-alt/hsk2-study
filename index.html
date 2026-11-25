@@ -864,6 +864,115 @@
       color: var(--text-muted);
     }
 
+    /* Pronunciation Check & Scoring UI */
+    .btn-mic {
+      background: #fdf2f8;
+      color: #be185d;
+      border-color: #fbcfe8;
+    }
+    .btn-mic:hover {
+      background: #fce7f3;
+    }
+    .btn-mic.listening {
+      background: #dc2626;
+      color: #ffffff;
+      border-color: #ef4444;
+      animation: pulseMic 1s infinite;
+    }
+
+    @keyframes pulseMic {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
+      50% { box-shadow: 0 0 0 7px rgba(220, 38, 38, 0); }
+    }
+
+    .pronun-result {
+      display: none;
+      background: #f8fafc;
+      border: 1.5px solid var(--border);
+      border-radius: 11px;
+      padding: 9px 11px;
+      font-size: 0.82rem;
+    }
+    .pronun-result.visible { display: block; }
+    .pronun-result.excellent { background: #f0fdf4; border-color: #86efac; }
+    .pronun-result.good { background: #eff6ff; border-color: #93c5fd; }
+    .pronun-result.retry { background: #fffbeb; border-color: #fde68a; }
+    .pronun-result.low { background: #fef2f2; border-color: #fca5a5; }
+
+    .pronun-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+    .pronun-score-pill {
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 800;
+      background: #0f172a;
+      color: #fff;
+    }
+    .pronun-result.excellent .pronun-score-pill { background: #16a34a; }
+    .pronun-result.good .pronun-score-pill { background: #2563eb; }
+    .pronun-result.retry .pronun-score-pill { background: #d97706; }
+    .pronun-result.low .pronun-score-pill { background: #dc2626; }
+
+    .pronun-diff-line {
+      font-size: 1.08rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin: 4px 0;
+    }
+    .char-ok { color: #15803d; }
+    .char-miss {
+      color: #dc2626;
+      text-decoration: underline wavy #dc2626;
+      background: #fee2e2;
+      border-radius: 4px;
+      padding: 0 2px;
+    }
+    .pronun-heard {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .dialogue-pronun-summary {
+      background: linear-gradient(135deg, #ffffff, #f8fafc);
+      border: 1.5px solid #c7d2fe;
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .pronun-summary-stats {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .pronun-circle-score {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: #eef2ff;
+      border: 3px solid var(--primary);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
     /* ==================== QUESTION CARDS (STEPS 2 & 3) ==================== */
     .questions-list {
       display: flex;
@@ -1504,11 +1613,11 @@
 
         <div class="control-group">
           <span>🔊</span>
-          <select id="speechRateSelect" aria-label="Tốc độ đọc">
-            <option value="0.75">0.75x</option>
-            <option value="0.9">0.9x</option>
-            <option value="1" selected>1.0x</option>
-            <option value="1.15">1.15x</option>
+          <select id="speechRateSelect" aria-label="Chế độ giọng đọc" title="Chỉnh phong cách & tốc độ giọng đọc theo ngữ cảnh">
+            <option value="slow_clear" selected>🌿 Chậm rõ dễ nhớ (0.85x)</option>
+            <option value="ultra_slow">🐢 Tách âm siêu chậm (0.72x)</option>
+            <option value="context_dialogue">🎭 Hội thoại tự nhiên (0.95x)</option>
+            <option value="reflex">⚡ Phản xạ nhanh (1.08x)</option>
           </select>
           <select id="voiceSelect" aria-label="Giọng đọc" style="max-width: 115px;">
             <option value="">zh-CN</option>
@@ -1562,6 +1671,10 @@
           <div class="score-pill">
             <span class="label">Dạng 3</span>
             <span class="val" id="scorePart3">0/3</span>
+          </div>
+          <div class="score-pill">
+            <span class="label">Phát âm</span>
+            <span class="val" id="scorePronun">--</span>
           </div>
         </div>
       </div>
@@ -1717,6 +1830,22 @@
       </div>
 
       <div id="dialogueScenario" class="dialogue-scenario"></div>
+
+      <div class="dialogue-pronun-summary" id="dialoguePronunSummary">
+        <div class="pronun-summary-stats">
+          <div class="pronun-circle-score" id="dlgAvgScoreCircle">--</div>
+          <div>
+            <div style="font-weight:800; font-size:0.95rem;">🎙️ Chấm điểm Đọc & Phát âm Hội thoại</div>
+            <div style="font-size:0.8rem; color:var(--text-muted);" id="dlgPronunSub">
+              Bấm <strong>🎤 Đọc & Chấm</strong> ở từng câu thoại hoặc luyện đọc nối tiếp cả đoạn (0/8 câu đã chấm).
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn btn-mic btn-sm" id="btnRecordFullDialogueSeq">🎙️ Đọc nối tiếp cả đoạn</button>
+          <button class="btn btn-outline btn-sm" id="btnResetDlgPronun">🔄 Xóa điểm đọc</button>
+        </div>
+      </div>
 
       <div id="dialogueContainer" class="dialogue-container dialogue-hide-pinyin dialogue-hide-vi">
         <div id="dialogueList" class="dialogue-list"></div>
@@ -2494,6 +2623,7 @@
     const STORAGE_KEY_PROGRESS = "hsk2_sc_daily_progress_v2";
     const STORAGE_KEY_SRS = "hsk2_sc_srs_cards_v2";
     const STORAGE_KEY_SETTINGS = "hsk2_sc_settings_v2";
+    const STORAGE_KEY_PRONUN = "hsk2_sc_pronun_v1";
 
     let allLessons = [...LESSONS_DATA];
     let currentLesson = allLessons[0];
@@ -2506,9 +2636,10 @@
     let part2State = {};
     let part3CompState = {};
 
-    // Daily Progress & Streak
-    let dailyProgress = {}; // { [YYYY-MM-DD]: { completed: bool, lessonId: string, completedAt: iso } }
-    let srsData = {}; // { [hanzi]: { intervalMinutes, ease, reps, nextReviewAt, lastRatedAt, statusLabel } }
+    // Daily Progress, SRS & Pronunciation Scores
+    let dailyProgress = {};
+    let srsData = {};
+    let pronunScores = {}; // { [key]: { score, target, heard, tokens: [{ch, ok}], updatedAt } }
     let appSettings = {
       reminderEnabled: true,
       intervalMinutes: 20,
@@ -2540,6 +2671,7 @@
         }
         dailyProgress = JSON.parse(localStorage.getItem(STORAGE_KEY_PROGRESS) || "{}") || {};
         srsData = JSON.parse(localStorage.getItem(STORAGE_KEY_SRS) || "{}") || {};
+        pronunScores = JSON.parse(localStorage.getItem(STORAGE_KEY_PRONUN) || "{}") || {};
         const savedSettings = JSON.parse(localStorage.getItem(STORAGE_KEY_SETTINGS) || "null");
         if (savedSettings) {
           appSettings = { ...appSettings, ...savedSettings };
@@ -2655,15 +2787,30 @@
     }
 
     /********************************************************************
-     * WEB SPEECH API (TƯƠNG THÍCH IPHONE 17 SAFARI & DESKTOP)
+     * WEB SPEECH API NÂNG CAO (CHUẨN PHONG CÁCH CHẬM RÃI DỄ NHỚ - AN KHẢ HY)
+     * - Ưu tiên giọng Neural / Natural / Ting-Ting rõ nét trên Surface & iPhone 17
+     * - Ngắt nhịp từng vế câu (，。？！) với khoảng nghỉ 400ms để dễ nghe & ghi nhớ
+     * - Phân biệt ngữ điệu câu hỏi/cảm thán và phân vai A/B trong hội thoại
      ********************************************************************/
     let zhVoices = [];
+    let currentSpeechToken = 0;
+
+    function scoreVoiceQuality(v) {
+      const name = (v.name || "").toLowerCase();
+      const lang = (v.lang || "").toLowerCase();
+      let score = 0;
+      if (/zh[-_]cn|cmn[-_]hans/i.test(lang)) score += 50;
+      else if (/zh/i.test(lang)) score += 20;
+      if (/natural|online|neural|premium|enhanced/i.test(name)) score += 40;
+      if (/xiaoxiao|yunxi|ting-ting|tingting|google 普通话|huihui|yaoyao/i.test(name)) score += 30;
+      return score;
+    }
 
     function populateVoices() {
       if (!("speechSynthesis" in window)) return;
       const voices = window.speechSynthesis.getVoices();
       zhVoices = voices.filter(v =>
-        /zh|cmn|chinese|ting-ting|meijia|sin-ji|xiaoxiao|yunxi|huihui/i.test(v.lang + " " + v.name)
+        /zh|cmn|chinese|ting-ting|meijia|sin-ji|xiaoxiao|yunxi|huihui|kangkang|yaoyao/i.test(v.lang + " " + v.name)
       );
 
       const voiceSelect = document.getElementById("voiceSelect");
@@ -2676,16 +2823,11 @@
         opt.textContent = "zh-CN";
         voiceSelect.appendChild(opt);
       } else {
-        // Ưu tiên giọng zh-CN (Ting-Ting trên iOS) lên đầu
-        zhVoices.sort((a, b) => {
-          const aCn = /zh[-_]CN/i.test(a.lang) ? 0 : 1;
-          const bCn = /zh[-_]CN/i.test(b.lang) ? 0 : 1;
-          return aCn - bCn;
-        });
+        zhVoices.sort((a, b) => scoreVoiceQuality(b) - scoreVoiceQuality(a));
         zhVoices.forEach((v, idx) => {
           const opt = document.createElement("option");
           opt.value = idx;
-          opt.textContent = `${v.name.replace("Microsoft ", "").replace("Google ", "")}`;
+          opt.textContent = `${v.name.replace("Microsoft ", "").replace("Google ", "").replace(" Online (Natural)", " ★")}`;
           voiceSelect.appendChild(opt);
         });
         if (prevVal && zhVoices[prevVal]) voiceSelect.value = prevVal;
@@ -2697,41 +2839,285 @@
       window.speechSynthesis.onvoiceschanged = populateVoices;
     }
 
-    function speakChinese(text, onEndCallback = null, btnEl = null) {
+    function getSpeechStyleConfig() {
+      const mode = document.getElementById("speechRateSelect").value || "slow_clear";
+      if (mode === "ultra_slow") return { mode, rate: 0.72, clausePauseMs: 520, splitClauses: true };
+      if (mode === "slow_clear") return { mode, rate: 0.85, clausePauseMs: 420, splitClauses: true };
+      if (mode === "context_dialogue") return { mode, rate: 0.95, clausePauseMs: 260, splitClauses: true };
+      return { mode, rate: 1.08, clausePauseMs: 120, splitClauses: false };
+    }
+
+    function splitChineseClauses(text) {
+      if (!text) return [];
+      const parts = text.match(/[^，。？！；：,\.\?!;]+[，。？！；：,\.\?!;]?/g);
+      return (parts || [text]).map(s => s.trim()).filter(Boolean);
+    }
+
+    function pickContextualVoice(speakerRole = null) {
+      const voiceIdx = document.getElementById("voiceSelect").value;
+      if (speakerRole && zhVoices.length > 1) {
+        const maleVoice = zhVoices.find(v => /yunxi|kangkang|yunyang|yunjian|daniel|male/i.test(v.name));
+        const femaleVoice = zhVoices.find(v => /xiaoxiao|huihui|yaoyao|ting-ting|tingting|meijia|female/i.test(v.name));
+        if (speakerRole === "A" && maleVoice) return maleVoice;
+        if (speakerRole === "B" && femaleVoice) return femaleVoice;
+      }
+      if (voiceIdx !== "" && zhVoices[voiceIdx]) return zhVoices[voiceIdx];
+      return zhVoices[0] || null;
+    }
+
+    function speakChinese(text, onEndCallback = null, btnEl = null, options = {}) {
       if (!("speechSynthesis" in window)) {
         showToast("Trình duyệt không hỗ trợ phát âm.");
         if (onEndCallback) onEndCallback();
         return;
       }
 
+      currentSpeechToken++;
+      const myToken = currentSpeechToken;
+
       try {
         window.speechSynthesis.cancel();
       } catch (e) {}
 
       document.querySelectorAll(".btn-audio.speaking").forEach(b => b.classList.remove("speaking"));
-
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = "zh-CN";
-      utter.rate = parseFloat(document.getElementById("speechRateSelect").value) || 1.0;
-
-      const voiceIdx = document.getElementById("voiceSelect").value;
-      if (voiceIdx !== "" && zhVoices[voiceIdx]) {
-        utter.voice = zhVoices[voiceIdx];
-        utter.lang = zhVoices[voiceIdx].lang;
-      }
-
       if (btnEl) btnEl.classList.add("speaking");
 
-      utter.onend = () => {
-        if (btnEl) btnEl.classList.remove("speaking");
-        if (onEndCallback) onEndCallback();
-      };
-      utter.onerror = () => {
-        if (btnEl) btnEl.classList.remove("speaking");
-        if (onEndCallback) onEndCallback();
+      const cfg = getSpeechStyleConfig();
+      const isSingleShortWord = normalizeZh(text).length <= 4 && !/[，。？！]/.test(text);
+      const clauses = cfg.splitClauses && !isSingleShortWord ? splitChineseClauses(text) : [text];
+      const chosenVoice = pickContextualVoice(options.speaker || null);
+
+      let basePitch = 1.0;
+      if (options.speaker === "A") basePitch = 0.95;
+      else if (options.speaker === "B") basePitch = 1.05;
+
+      let cIdx = 0;
+
+      function speakNextClause() {
+        if (myToken !== currentSpeechToken) {
+          if (btnEl) btnEl.classList.remove("speaking");
+          return;
+        }
+        if (cIdx >= clauses.length) {
+          if (btnEl) btnEl.classList.remove("speaking");
+          if (onEndCallback) onEndCallback();
+          return;
+        }
+
+        const chunk = clauses[cIdx++];
+        const utter = new SpeechSynthesisUtterance(chunk);
+        utter.lang = "zh-CN";
+        // Từ đơn lẻ đọc chậm hơn nhẹ để nghe rõ thanh điệu
+        utter.rate = isSingleShortWord ? Math.min(cfg.rate, 0.84) : cfg.rate;
+
+        // Điều chỉnh ngữ điệu theo ngữ cảnh câu hỏi / cảm thán
+        let pitch = basePitch;
+        if (/[？?吗呢]$/.test(chunk)) pitch += 0.05;
+        else if (/[！!]$/.test(chunk)) pitch += 0.03;
+        utter.pitch = Math.max(0.75, Math.min(1.25, pitch));
+
+        if (chosenVoice) {
+          utter.voice = chosenVoice;
+          utter.lang = chosenVoice.lang;
+        }
+
+        utter.onend = () => {
+          if (myToken !== currentSpeechToken) return;
+          if (cIdx < clauses.length) {
+            setTimeout(speakNextClause, cfg.clausePauseMs);
+          } else {
+            if (btnEl) btnEl.classList.remove("speaking");
+            if (onEndCallback) onEndCallback();
+          }
+        };
+
+        utter.onerror = () => {
+          if (btnEl) btnEl.classList.remove("speaking");
+          if (onEndCallback) onEndCallback();
+        };
+
+        window.speechSynthesis.speak(utter);
+      }
+
+      speakNextClause();
+    }
+
+    /********************************************************************
+     * KIỂM TRA ĐỌC & CHẤM ĐIỂM PHÁT ÂM (WEB SPEECH RECOGNITION ZH-CN)
+     ********************************************************************/
+    let activeRecognition = null;
+    let activeMicBtn = null;
+    let isSeqDialogueRecording = false;
+
+    function computeLcsAlignment(targetChars, heardChars) {
+      const m = targetChars.length;
+      const n = heardChars.length;
+      const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+      for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+          if (targetChars[i - 1] === heardChars[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;
+          else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+        }
+      }
+      const matched = new Array(m).fill(false);
+      let i = m, j = n;
+      while (i > 0 && j > 0) {
+        if (targetChars[i - 1] === heardChars[j - 1]) {
+          matched[i - 1] = true;
+          i--; j--;
+        } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+          i--;
+        } else {
+          j--;
+        }
+      }
+      return { matched, lcsCount: dp[m][n] };
+    }
+
+    function evaluatePronunciation(targetText, heardText, confidence = 0.85) {
+      const targetNorm = normalizeZh(targetText);
+      const heardNorm = normalizeZh(heardText);
+      const targetChars = [...targetNorm];
+      const heardChars = [...heardNorm];
+
+      if (targetChars.length === 0) return { score: 0, tokens: [], heard: heardText };
+
+      const { matched, lcsCount } = computeLcsAlignment(targetChars, heardChars);
+      const recall = lcsCount / targetChars.length;
+      const precision = heardChars.length > 0 ? lcsCount / heardChars.length : 0;
+      const f1 = recall + precision > 0 ? (2 * recall * precision) / (recall + precision) : 0;
+      const confScore = confidence > 0 ? Math.min(1, confidence) : 0.85;
+
+      let rawScore = Math.round((f1 * 0.82 + confScore * 0.18) * 100);
+      if (targetNorm === heardNorm) rawScore = Math.max(95, rawScore);
+      if (!heardNorm) rawScore = 0;
+
+      const tokens = targetChars.map((ch, idx) => ({ ch, ok: matched[idx] }));
+      return { score: Math.min(100, Math.max(0, rawScore)), tokens, heard: heardText };
+    }
+
+    function getPronunRatingMeta(score) {
+      if (score >= 90) return { cls: "excellent", label: "🏆 Xuất sắc! Phát âm rất chuẩn" };
+      if (score >= 75) return { cls: "good", label: "👍 Khá tốt! Rõ ràng" };
+      if (score >= 50) return { cls: "retry", label: "🔄 Tạm ổn — Nghe lại mẫu chậm" };
+      return { cls: "low", label: "💡 Chưa rõ — Đọc chậm từng âm" };
+    }
+
+    function renderPronunFeedbackHtml(res) {
+      if (!res) return "";
+      const meta = getPronunRatingMeta(res.score);
+      const diffHtml = res.tokens
+        .map(t => `<span class="${t.ok ? "char-ok" : "char-miss"}">${t.ch}</span>`)
+        .join("");
+      return `
+        <div class="pronun-top-row">
+          <span>${meta.label}</span>
+          <span class="pronun-score-pill">${res.score} / 100đ</span>
+        </div>
+        <div class="pronun-diff-line zh-text">${diffHtml}</div>
+        <div class="pronun-heard">🎤 Máy nhận được: “<span class="zh-text">${res.heard || "(Không nghe rõ tiếng Trung)"}</span>”</div>
+      `;
+    }
+
+    function savePronunResult(key, targetText, heardText, confidence) {
+      const res = evaluatePronunciation(targetText, heardText, confidence);
+      pronunScores[key] = { ...res, target: targetText, updatedAt: Date.now() };
+      localStorage.setItem(STORAGE_KEY_PRONUN, JSON.stringify(pronunScores));
+      updateScoresAndTodayStatus();
+      return pronunScores[key];
+    }
+
+    function stopActiveRecognition() {
+      if (activeRecognition) {
+        try { activeRecognition.abort(); } catch (e) {}
+        activeRecognition = null;
+      }
+      if (activeMicBtn) {
+        activeMicBtn.classList.remove("listening");
+        if (activeMicBtn.dataset.origLabel) activeMicBtn.textContent = activeMicBtn.dataset.origLabel;
+        activeMicBtn = null;
+      }
+    }
+
+    function startPronunciationCheck({ targetText, storageKey, btnEl, onScored }) {
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        showToast("Trình duyệt này chưa hỗ trợ chấm phát âm (hãy dùng Safari trên iPhone 17 hoặc Chrome/Edge trên Surface).");
+        return;
+      }
+
+      if (activeMicBtn === btnEl && activeRecognition) {
+        stopActiveRecognition();
+        return;
+      }
+
+      stopActiveRecognition();
+      try { window.speechSynthesis.cancel(); currentSpeechToken++; } catch (e) {}
+
+      const rec = new SpeechRec();
+      rec.lang = "zh-CN";
+      rec.interimResults = false;
+      rec.maxAlternatives = 3;
+
+      activeRecognition = rec;
+      activeMicBtn = btnEl;
+      if (btnEl) {
+        if (!btnEl.dataset.origLabel) btnEl.dataset.origLabel = btnEl.textContent;
+        btnEl.classList.add("listening");
+        btnEl.textContent = "🎙️ Đang nghe...";
+      }
+
+      let gotResult = false;
+
+      rec.onresult = event => {
+        gotResult = true;
+        const resultList = event.results[0];
+        // Chọn phương án khớp tốt nhất trong top-3 alternatives (tránh nhầm từ đồng âm)
+        let bestHeard = resultList[0].transcript;
+        let bestConf = resultList[0].confidence || 0.85;
+        let bestEval = evaluatePronunciation(targetText, bestHeard, bestConf);
+
+        for (let k = 1; k < resultList.length; k++) {
+          const cand = resultList[k].transcript;
+          const candConf = resultList[k].confidence || 0.8;
+          const ev = evaluatePronunciation(targetText, cand, candConf);
+          if (ev.score > bestEval.score) {
+            bestHeard = cand;
+            bestConf = candConf;
+            bestEval = ev;
+          }
+        }
+
+        const saved = savePronunResult(storageKey, targetText, bestHeard, bestConf);
+        if (onScored) onScored(saved);
       };
 
-      window.speechSynthesis.speak(utter);
+      rec.onerror = err => {
+        if (err.error === "not-allowed" || err.error === "service-not-allowed") {
+          showToast("⚠️ Vui lòng cho phép quyền Micro trên iPhone/Surface để chấm điểm đọc!");
+        } else if (err.error === "no-speech") {
+          showToast("Không nghe thấy giọng nói, hãy bấm lại và đọc gần micro hơn.");
+        } else if (err.error !== "aborted") {
+          showToast("Lỗi micro: " + err.error);
+        }
+        stopActiveRecognition();
+      };
+
+      rec.onend = () => {
+        if (activeRecognition === rec) {
+          stopActiveRecognition();
+          if (!gotResult) {
+            // Đã xử lý ở onerror hoặc không có tiếng
+          }
+        }
+      };
+
+      try {
+        rec.start();
+      } catch (e) {
+        stopActiveRecognition();
+        showToast("Không khởi động được micro: " + e.message);
+      }
     }
 
     /********************************************************************
@@ -2804,6 +3190,34 @@
         if (part3CompState[idx] === item.correct) p3Correct++;
       });
       document.getElementById("scorePart3").textContent = `${p3Correct}/${p3Total}`;
+
+      // Pronunciation average score across vocab & dialogue for current lesson
+      const lessonPrefix = `${currentLesson.id}::`;
+      const lessonPronunItems = Object.entries(pronunScores)
+        .filter(([k]) => k.startsWith(lessonPrefix))
+        .map(([, v]) => v.score);
+      const pronunAvg = lessonPronunItems.length > 0
+        ? Math.round(lessonPronunItems.reduce((a, b) => a + b, 0) / lessonPronunItems.length)
+        : null;
+      document.getElementById("scorePronun").textContent = pronunAvg !== null ? `${pronunAvg}đ` : "--";
+
+      // Dialogue pronunciation summary
+      const dlgLines = (currentLesson.part3_dialogue && currentLesson.part3_dialogue.lines) || [];
+      const dlgLineScores = dlgLines
+        .map((_, idx) => pronunScores[`${currentLesson.id}::dlg::${idx}`])
+        .filter(Boolean);
+      const dlgCircle = document.getElementById("dlgAvgScoreCircle");
+      const dlgSub = document.getElementById("dlgPronunSub");
+      if (dlgCircle && dlgSub) {
+        if (dlgLineScores.length > 0) {
+          const dlgAvg = Math.round(dlgLineScores.reduce((a, b) => a + b.score, 0) / dlgLineScores.length);
+          dlgCircle.textContent = `${dlgAvg}đ`;
+          dlgSub.innerHTML = `Đã chấm <strong>${dlgLineScores.length}/${dlgLines.length} câu thoại</strong> • Điểm trung bình: <strong>${dlgAvg}/100đ</strong>`;
+        } else {
+          dlgCircle.textContent = "--";
+          dlgSub.innerHTML = `Bấm <strong>🎤 Đọc & Chấm</strong> ở từng câu thoại hoặc luyện đọc nối tiếp cả đoạn (0/${dlgLines.length} câu đã chấm).`;
+        }
+      }
 
       const totalUnits = vocabTotal + p1Total + p2Total + p3Total;
       const doneUnits = vocabReviewed + p1Correct + p2Correct + p3Correct;
@@ -2922,6 +3336,9 @@
         };
         const isMastered = cardSrs.reps >= 1 && cardSrs.nextReviewAt > Date.now();
         const isDue = cardSrs.nextReviewAt === 0 || cardSrs.nextReviewAt <= Date.now();
+        const wordKey = `${currentLesson.id}::vocab::${v.hanzi}`;
+        const wordPronun = pronunScores[wordKey];
+        const wordPronunMeta = wordPronun ? getPronunRatingMeta(wordPronun.score) : null;
 
         // Render Card View
         const card = document.createElement("div");
@@ -2935,14 +3352,22 @@
             <div class="vocab-main-info">
               <div class="vocab-hanzi-row">
                 <span class="vocab-hanzi-lg zh-text">${v.hanzi}</span>
-                <button class="btn btn-audio btn-sm" data-vocab-speak="${v.hanzi}" aria-label="Nghe từ ${v.hanzi}">🔊 Nghe</button>
+                <div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">
+                  <button class="btn btn-audio btn-sm" data-vocab-speak="${v.hanzi}" aria-label="Nghe từ ${v.hanzi}">🔊 Nghe</button>
+                  <button class="btn btn-mic btn-sm" data-vocab-mic="${v.hanzi}" data-pronun-key="${wordKey}" data-pronun-idx="${idx}" aria-label="Kiểm tra đọc từ ${v.hanzi}">🎤 Đọc</button>
+                </div>
               </div>
               <div class="vocab-pinyin-lg pinyin-text">${v.pinyin}</div>
               <div class="vocab-meta-row">
                 <span class="pos-badge ${getPosBadgeClass(v.pos)}">${v.pos || "Từ vựng"}</span>
                 <span class="srs-badge ${isDue ? "due" : "good"}">${cardSrs.statusLabel}</span>
+                ${wordPronun ? `<span class="srs-badge good">🎤 ${wordPronun.score}đ</span>` : ""}
               </div>
             </div>
+          </div>
+
+          <div class="pronun-result ${wordPronun ? `visible ${wordPronunMeta.cls}` : ""}" id="vocab-pronun-${idx}">
+            ${wordPronun ? renderPronunFeedbackHtml(wordPronun) : ""}
           </div>
 
           <div class="vocab-meaning-box">🇻🇳 ${v.meaning}</div>
@@ -2959,7 +3384,10 @@
                     <div class="ex-py pinyin-text">${v.examplePy || ""}</div>
                     <div class="ex-vi">➔ ${v.exampleVi || ""}</div>
                   </div>
-                  <button class="btn btn-audio btn-sm" data-vocab-speak="${v.exampleZh}" title="Nghe câu ví dụ">🔊</button>
+                  <div style="display:flex; flex-direction:column; gap:5px;">
+                    <button class="btn btn-audio btn-sm" data-vocab-speak="${v.exampleZh}" title="Nghe câu ví dụ">🔊</button>
+                    <button class="btn btn-mic btn-sm" data-vocab-mic="${v.exampleZh}" data-pronun-key="${wordKey}" data-pronun-idx="${idx}" title="Đọc thử câu ví dụ">🎤</button>
+                  </div>
                 </div>`
               : ""
           }
@@ -3016,6 +3444,28 @@
       const speakBtn = e.target.closest("[data-vocab-speak]");
       if (speakBtn) {
         speakChinese(speakBtn.dataset.vocabSpeak, null, speakBtn);
+        return;
+      }
+      const micBtn = e.target.closest("[data-vocab-mic]");
+      if (micBtn) {
+        const targetText = micBtn.dataset.vocabMic;
+        const storageKey = micBtn.dataset.pronunKey;
+        const cardIdx = micBtn.dataset.pronunIdx;
+        startPronunciationCheck({
+          targetText,
+          storageKey,
+          btnEl: micBtn,
+          onScored: res => {
+            const box = document.getElementById(`vocab-pronun-${cardIdx}`);
+            if (box) {
+              const meta = getPronunRatingMeta(res.score);
+              box.className = `pronun-result visible ${meta.cls}`;
+              box.innerHTML = renderPronunFeedbackHtml(res);
+            }
+            showToast(`🎤 Điểm đọc "${targetText}": ${res.score}/100đ!`);
+            renderVocabSection();
+          }
+        });
         return;
       }
       const srsBtn = e.target.closest("[data-srs-word]");
@@ -3382,6 +3832,10 @@
       const listEl = document.getElementById("dialogueList");
       listEl.innerHTML = "";
       dlg.lines.forEach((line, idx) => {
+        const dlgKey = `${currentLesson.id}::dlg::${idx}`;
+        const dlgPronun = pronunScores[dlgKey];
+        const dlgMeta = dlgPronun ? getPronunRatingMeta(dlgPronun.score) : null;
+
         const item = document.createElement("div");
         item.className = `dialogue-item ${line.speaker === "A" ? "speaker-a" : "speaker-b"}`;
         item.id = `dlg-line-${idx}`;
@@ -3389,16 +3843,20 @@
           <div class="speaker-avatar">${line.speaker}</div>
           <div class="dialogue-content">
             <div class="dialogue-top">
-              <span class="speaker-name">${line.name} • #${idx + 1}</span>
+              <span class="speaker-name">${line.name} • #${idx + 1} ${dlgPronun ? `<span class="srs-badge good">🎤 ${dlgPronun.score}đ</span>` : ""}</span>
               <div class="dialogue-line-tools">
                 <button class="btn btn-outline btn-sm" data-action="line-pinyin" data-idx="${idx}">👁️ Pinyin</button>
                 <button class="btn btn-outline btn-sm" data-action="line-vi" data-idx="${idx}">🇻🇳 Nghĩa</button>
                 <button class="btn btn-audio btn-sm" data-action="line-speak" data-idx="${idx}">🔊 Nghe</button>
+                <button class="btn btn-mic btn-sm" data-action="line-mic" data-idx="${idx}">🎤 Đọc & Chấm</button>
               </div>
             </div>
             <div class="dialogue-pinyin pinyin-text">${line.pinyin}</div>
             <div class="dialogue-hanzi zh-text" data-action="reveal-line" data-idx="${idx}">${highlightLessonVocab(line.hanzi)}</div>
             <div class="dialogue-vi vi-text">🇻🇳 ${line.vi}</div>
+            <div class="pronun-result ${dlgPronun ? `visible ${dlgMeta.cls}` : ""}" id="dlg-pronun-${idx}" style="margin-top:8px;">
+              ${dlgPronun ? renderPronunFeedbackHtml(dlgPronun) : ""}
+            </div>
           </div>
         `;
         listEl.appendChild(item);
@@ -3444,7 +3902,19 @@
       const itemEl = document.getElementById(`dlg-line-${idx}`);
       if (!line || !itemEl) return;
 
-      if (action === "line-speak") speakChinese(line.hanzi, null, btn);
+      if (action === "line-speak") speakChinese(line.hanzi, null, btn, { speaker: line.speaker });
+      else if (action === "line-mic") {
+        const dlgKey = `${currentLesson.id}::dlg::${idx}`;
+        startPronunciationCheck({
+          targetText: line.hanzi,
+          storageKey: dlgKey,
+          btnEl: btn,
+          onScored: res => {
+            showToast(`🎤 Câu #${idx + 1}: ${res.score}/100đ!`);
+            renderPart3();
+          }
+        });
+      }
       else if (action === "line-pinyin") itemEl.classList.toggle("force-show-pinyin");
       else if (action === "line-vi") itemEl.classList.toggle("force-show-vi");
       else if (action === "reveal-line") itemEl.classList.toggle("reveal-hanzi");
@@ -3496,13 +3966,86 @@
           lineEl.classList.add("playing-line");
           lineEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
         }
-        const text = lines[currentIdx].hanzi;
+        const lineObj = lines[currentIdx];
         currentIdx++;
-        speakChinese(text, () => {
-          if (!dialoguePlayCancel) setTimeout(playNextLine, 450);
-        });
+        speakChinese(lineObj.hanzi, () => {
+          if (!dialoguePlayCancel) setTimeout(playNextLine, 550);
+        }, null, { speaker: lineObj.speaker });
       }
       playNextLine();
+    });
+
+    // Đọc nối tiếp cả đoạn hội thoại từ câu 1 -> câu cuối và tự chấm điểm
+    document.getElementById("btnRecordFullDialogueSeq").addEventListener("click", e => {
+      const btn = e.currentTarget;
+      const lines = currentLesson.part3_dialogue.lines;
+
+      if (isSeqDialogueRecording) {
+        isSeqDialogueRecording = false;
+        stopActiveRecognition();
+        btn.classList.remove("listening");
+        btn.textContent = "🎙️ Đọc nối tiếp cả đoạn";
+        document.querySelectorAll(".dialogue-item.playing-line").forEach(el => el.classList.remove("playing-line"));
+        return;
+      }
+
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        showToast("Trình duyệt này chưa hỗ trợ chấm phát âm (hãy dùng Safari iPhone 17 hoặc Chrome/Edge).");
+        return;
+      }
+
+      isSeqDialogueRecording = true;
+      btn.classList.add("listening");
+      btn.textContent = "⏹️ Dừng đọc nối tiếp";
+      let seqIdx = 0;
+
+      function recordNextLine() {
+        document.querySelectorAll(".dialogue-item.playing-line").forEach(el => el.classList.remove("playing-line"));
+        if (!isSeqDialogueRecording || seqIdx >= lines.length) {
+          isSeqDialogueRecording = false;
+          btn.classList.remove("listening");
+          btn.textContent = "🎙️ Đọc nối tiếp cả đoạn";
+          showToast("🎉 Hoàn thành chấm điểm đọc cả đoạn hội thoại!");
+          return;
+        }
+        const lineEl = document.getElementById(`dlg-line-${seqIdx}`);
+        if (lineEl) {
+          lineEl.classList.add("playing-line");
+          lineEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        const curIdx = seqIdx;
+        const lineObj = lines[curIdx];
+        showToast(`🎙️ Mời đọc câu #${curIdx + 1}: ${lineObj.name}`);
+
+        const lineMicBtn = lineEl ? lineEl.querySelector('[data-action="line-mic"]') : null;
+        startPronunciationCheck({
+          targetText: lineObj.hanzi,
+          storageKey: `${currentLesson.id}::dlg::${curIdx}`,
+          btnEl: lineMicBtn,
+          onScored: res => {
+            showToast(`✅ Câu #${curIdx + 1}: ${res.score}/100đ`);
+            renderPart3();
+            seqIdx++;
+            if (isSeqDialogueRecording) {
+              setTimeout(recordNextLine, 700);
+            }
+          }
+        });
+      }
+
+      recordNextLine();
+    });
+
+    document.getElementById("btnResetDlgPronun").addEventListener("click", () => {
+      const prefix = `${currentLesson.id}::dlg::`;
+      Object.keys(pronunScores).forEach(k => {
+        if (k.startsWith(prefix)) delete pronunScores[k];
+      });
+      localStorage.setItem(STORAGE_KEY_PRONUN, JSON.stringify(pronunScores));
+      renderPart3();
+      updateScoresAndTodayStatus();
+      showToast("Đã xóa điểm đọc hội thoại.");
     });
 
     document.getElementById("btnCheckPart3").addEventListener("click", () => {
